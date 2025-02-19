@@ -9,6 +9,7 @@
 
 <?php
 wp_enqueue_script( 'learn-press-global' );
+wp_enqueue_script( 'learn-press-import-script' );
 $step = 0;
 if ( ! empty( $_REQUEST['import-nonce'] ) && wp_verify_nonce( $_REQUEST['import-nonce'], 'learnpress-import-export' ) ) {
 	$step = learn_press_get_request( 'step', 1 );

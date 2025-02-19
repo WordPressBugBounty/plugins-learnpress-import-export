@@ -4,9 +4,10 @@
  *
  * @since 3.0.0
  */
-?>
 
-<?php $step = learn_press_get_request( 'step', 0 ); ?>
+wp_enqueue_script( 'learn-press-export-script' );
+$step = learn_press_get_request( 'step', 0 );
+?>
 
 <form method="post" name="export-courses" action="admin.php?page=learnpress-import-export"
       enctype="multipart/form-data">

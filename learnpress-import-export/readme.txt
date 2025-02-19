@@ -2,10 +2,8 @@
 Contributors: thimpress, tunnhn, kendy73, leehld
 Donate link:
 Tags: learnpress, e-learning, learning management system, import/export
-Requires at least: 6.0
-Requires PHP: 7.4
-Tested up to: 6.6.2
-Stable tag: 4.0.5
+Tested up to: 6.7
+Stable tag: 4.0.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,6 +51,9 @@ Check out <a href="http://docs.thimpress.com/learnpress" target="_blank">LearnPr
 1. LearnPress Export Import screenshot.
 
 == Changelog ==
+
+= 4.0.6 (2025-12-18) =
+~ Added: feature migrate data from TutorLMS.
 
 = 4.0.5 (2024-11-12) =
 ~ Fixed: security.
