@@ -6,11 +6,11 @@ use LPImportExport\Migration\Helpers\Debug;
 use LPImportExport\Migration\Helpers\Page;
 use LPImportExport\Migration\Helpers\Config;
 use LPImportExport\Migration\Helpers\RestApi;
-use LPImportExport\Migration\Helpers\Tutor;
 use LPImportExport\Migration\Models\TutorCourseItemModel;
 use LPImportExport\Migration\Models\TutorCourseModel;
 use LPImportExport\Migration\Models\TutorQuestionModel;
 use LPImportExport\Migration\Models\TutorSectionModel;
+use LPImportExport\Migration\Helpers\Plugin;
 
 class EnqueueScriptsController {
 
@@ -93,19 +93,29 @@ class EnqueueScriptsController {
 	 * @return void
 	 */
 	public function localize_admin_script() {
+		$scripts = array(
+			'rest_namespace' => RestApi::generate_namespace(),
+			'siteurl'        => site_url(),
+		);
+
+		if ( Plugin::is_tutor_active() ) {
+			$scripts = array_merge(
+				$scripts,
+				array(
+					'tutor_course_total'         => TutorCourseModel::get_course_total(),
+					'tutor_section_total'        => TutorSectionModel::get_section_total(),
+					'tutor_course_item_total'    => TutorCourseItemModel::get_course_item_total(),
+					'tutor_question_total'       => TutorQuestionModel::get_question_total(),
+					'tutor_course_process_total' => TutorCourseModel::get_process_course_total(),
+				)
+			);
+		}
+
 		wp_localize_script(
 			'learnpress-import-export-global',
 			'LP_ADDON_IMPORT_EXPORT_GLOBAL_OBJECT',
-			array(
-				'rest_namespace'             => RestApi::generate_namespace(),
-				'siteurl'                    => site_url(),
-				'tutor_course_total'         => TutorCourseModel::get_course_total(),
-				'tutor_section_total'        => TutorSectionModel::get_section_total(),
-				'tutor_course_item_total'    => TutorCourseItemModel::get_course_item_total(),
-				'tutor_question_total'       => TutorQuestionModel::get_question_total(),
-				'tutor_course_process_total' => TutorCourseModel::get_process_course_total()
-	)
-	);
+			$scripts
+		);
 
 		wp_localize_script(
 			'learnpress-import-export-global',

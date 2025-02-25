@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the LearnPress - Export/Import Courses plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: LearnPress - Export/Import Courses 4.0.6\n"
+"Project-Id-Version: LearnPress - Export/Import Courses 4.0.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learnpress-import-export\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-02-18T11:08:17+03:00\n"
+"POT-Creation-Date: 2025-02-25T11:37:18+03:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: learnpress-import-export\n"
@@ -281,99 +281,99 @@ msgstr ""
 msgid "The file %s doesn't exists"
 msgstr ""
 
-#: inc/Migration/Controllers/EnqueueScriptsController.php:114
+#: inc/Migration/Controllers/EnqueueScriptsController.php:124
 msgid "Migrating!"
 msgstr ""
 
-#: inc/Migration/Controllers/EnqueueScriptsController.php:115
+#: inc/Migration/Controllers/EnqueueScriptsController.php:125
 msgid "Success!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:128
+#: inc/Migration/Controllers/TutorMigrationController.php:127
 msgid "Clear failed!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:136
+#: inc/Migration/Controllers/TutorMigrationController.php:135
 msgid "Clear successfully!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:160
+#: inc/Migration/Controllers/TutorMigrationController.php:159
 msgid "Migration Successful!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:161
+#: inc/Migration/Controllers/TutorMigrationController.php:160
 msgid "The migration from Tutor LMS to LearnPress is successfully done."
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:166
+#: inc/Migration/Controllers/TutorMigrationController.php:165
 msgid "Courses Migrated: %s"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:169
+#: inc/Migration/Controllers/TutorMigrationController.php:168
 msgid "Lessons Migrated: %s"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:172
+#: inc/Migration/Controllers/TutorMigrationController.php:171
 msgid "Quizzes Migrated: %s"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:175
+#: inc/Migration/Controllers/TutorMigrationController.php:174
 msgid "Questions Migrated: %s"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:191
+#: inc/Migration/Controllers/TutorMigrationController.php:190
 msgid "You are not allowed to migrate."
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:195
+#: inc/Migration/Controllers/TutorMigrationController.php:194
 msgid "There are no tutor courses."
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:204
+#: inc/Migration/Controllers/TutorMigrationController.php:203
 msgid "The courses have been migrated."
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:208
+#: inc/Migration/Controllers/TutorMigrationController.php:207
 msgid "Course item is required."
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:294
+#: inc/Migration/Controllers/TutorMigrationController.php:293
 msgid "Migrated course!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:300
+#: inc/Migration/Controllers/TutorMigrationController.php:299
 msgid "All course migrated!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:364
+#: inc/Migration/Controllers/TutorMigrationController.php:363
 msgid "Migrated section!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:370
+#: inc/Migration/Controllers/TutorMigrationController.php:369
 msgid "All section migrated!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:581
+#: inc/Migration/Controllers/TutorMigrationController.php:580
 msgid "Migrated course item!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:587
+#: inc/Migration/Controllers/TutorMigrationController.php:586
 msgid "All course item migrated!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:765
+#: inc/Migration/Controllers/TutorMigrationController.php:764
 msgid "Migrated question!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:784
+#: inc/Migration/Controllers/TutorMigrationController.php:783
 msgid "Migrated all question!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:1129
+#: inc/Migration/Controllers/TutorMigrationController.php:1128
 msgid "Migrated course process!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:1136
+#: inc/Migration/Controllers/TutorMigrationController.php:1135
 msgid "All data migrated successfully."
 msgstr ""
 

@@ -4,7 +4,7 @@
  * Plugin URI: http://thimpress.com/learnpress
  * Description: Export and Import your courses with all lesson and quiz in easiest way.
  * Author: ThimPress
- * Version: 4.0.6
+ * Version: 4.0.7
  * Author URI: http://thimpress.com
  * Tags: learnpress, lms, add-on, prerequisites courses
  * Text Domain: learnpress-import-export
@@ -22,6 +22,7 @@ use LPImportExport\Migration\Controllers\EnqueueScriptsController;
 use LPImportExport\Migration\Controllers\AdminMenuController;
 use LPImportExport\Migration\Controllers\MigrationPopupController;
 use LPImportExport\Migration\Controllers\TutorMigrationController;
+use LPImportExport\Migration\Helpers\Plugin;
 
 const LP_ADDON_IMPORT_EXPORT_FILE = __FILE__;
 
@@ -139,8 +140,11 @@ class LP_Addon_Import_Export_Preload {
 
 		new EnqueueScriptsController();
 		new AdminMenuController();
-		new TutorMigrationController();
-		new MigrationPopupController();
+
+		if ( Plugin::is_tutor_active() ) {
+			new TutorMigrationController();
+			new MigrationPopupController();
+		}
 	}
 
 	public function show_note_errors_require_lp() {

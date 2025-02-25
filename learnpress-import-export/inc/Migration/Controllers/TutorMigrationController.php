@@ -31,7 +31,6 @@ use LP_User_Item_Quiz;
 class TutorMigrationController {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-//		var_dump(get_option('tutor_migrated_section'));
 	}
 
 	public function register_rest_routes() {
@@ -249,7 +248,7 @@ class TutorMigrationController {
 				$query->the_post();
 				$tutor_course_id = get_the_ID();
 
-				$lp_course_id = $this->get_migrated_lp_course( $tutor_course_id )['lp'];
+				$lp_course_id = $this->get_migrated_lp_course( $tutor_course_id )['lp'] ?? '';
 
 				$tutor_course_author_id = get_the_author_meta( 'ID' );
 
@@ -325,10 +324,10 @@ class TutorMigrationController {
 			while ( $query->have_posts() ) {
 				$query->the_post();
 				$tutor_topic_id  = get_the_ID();
-				$lp_section_id   = $this->get_migrated_lp_section( $tutor_topic_id )['lp'];
+				$lp_section_id   = $this->get_migrated_lp_section( $tutor_topic_id )['lp'] ?? '';
 				$tutor_course_id = get_post_field( 'post_parent', $tutor_topic_id );
 				$tutor_course_id = intval( $tutor_course_id );
-				$lp_course_id    = $this->get_migrated_lp_course( $tutor_course_id )['lp'];
+				$lp_course_id    = $this->get_migrated_lp_course( $tutor_course_id )['lp'] ?? '';
 
 				if ( empty( $lp_course_id ) ) {
 					continue;
@@ -404,8 +403,8 @@ class TutorMigrationController {
 //				if(empty($migrated_section)){
 //					var_dump($tutor_section_id);die;
 //				}
-				$lp_section_id = $migrated_section['lp'];
-				$lp_course_id  = $migrated_section['course_id'];
+				$lp_section_id = $migrated_section['lp'] ?? '';
+				$lp_course_id  = $migrated_section['course_id'] ?? '';
 
 				if ( empty( $lp_section_id ) || empty( $lp_course_id ) ) {
 					continue;
@@ -629,9 +628,9 @@ class TutorMigrationController {
 				$lp_question_order = $tutor_question_order;
 				$migrated_lp_quiz  = $this->get_migrated_lp_quiz( intval( $tutor_quiz_id ) );
 
-				$lp_quiz_id    = $migrated_lp_quiz['lp'];
-				$lp_course_id  = $migrated_lp_quiz['course_id'];
-				$lp_section_id = $migrated_lp_quiz['section_id'];
+				$lp_quiz_id    = $migrated_lp_quiz['lp'] ?? '';
+				$lp_course_id  = $migrated_lp_quiz['course_id'] ?? '';
+				$lp_section_id = $migrated_lp_quiz['section_id'] ?? '';
 
 				if ( empty( $lp_quiz_id ) || empty( $lp_course_id ) || empty( $lp_section_id ) ) {
 					continue;
