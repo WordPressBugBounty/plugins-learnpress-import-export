@@ -3,7 +3,7 @@ Contributors: thimpress, tunnhn, kendy73, leehld
 Donate link:
 Tags: learnpress, e-learning, learning management system, import/export
 Tested up to: 6.7
-Stable tag: 4.0.8
+Stable tag: 4.0.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -127,8 +127,12 @@ Check out <a href="http://docs.thimpress.com/learnpress" target="_blank">LearnPr
 1. LearnPress Export Import screenshot.
 
 == Changelog ==
+
+= 4.0.9 (2025-09-23) =
+~ Fixed: order items in section when export course.
+
 = 4.0.8 (2025-07-11) =
-~ Fixed: Import User.
+~ Fixed: minor bugs.
 
 = 4.0.7 (2025-02-25) =
 ~ Fixed: minor bugs.

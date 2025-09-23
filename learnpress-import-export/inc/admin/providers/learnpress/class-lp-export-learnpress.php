@@ -108,7 +108,9 @@ if ( ! class_exists( 'LP_Export_LearnPress_Provider' ) ) {
 						INNER JOIN {$wpdb->prefix}learnpress_section_items si ON si.section_id = s.section_id
 						INNER JOIN {$wpdb->prefix}posts p ON si.item_id = p.ID
 						INNER JOIN {$wpdb->prefix}posts c ON c.ID = s.section_course_id
-						WHERE c.ID = %d", $post->ID )
+						WHERE c.ID = %d
+						ORDER BY s.section_order, si.item_order", $post->ID 
+					)
 				);
 				if ( $course_items ) {
 					foreach ( $course_items as $item ) {
