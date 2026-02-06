@@ -71,8 +71,11 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
 			add_action( 'admin_init', array( $this, 'do_action' ) );
 
-			include_once LP_ADDON_IMPORT_EXPORT_INC . 'class-lp-import.php';
-			include_once LP_ADDON_IMPORT_EXPORT_INC . 'class-lp-export.php';
+			global $pagenow;
+			if ( ! in_array( $pagenow, array( 'export.php', 'import.php' ), true ) ) {
+				include_once LP_ADDON_IMPORT_EXPORT_INC . 'class-lp-import.php';
+				include_once LP_ADDON_IMPORT_EXPORT_INC . 'class-lp-export.php';
+			}
 		}
 
 		/**

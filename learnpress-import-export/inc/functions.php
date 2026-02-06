@@ -38,7 +38,7 @@ if ( ! class_exists( 'lpie_get_export_source' ) ) {
 	 */
 	function lpie_get_export_source() {
 		$source = array(
-			'learnpress' => 'Learnpress'
+			'learnpress' => 'Learnpress',
 		);
 
 		return apply_filters( 'lpie_export_source', $source );
@@ -228,8 +228,9 @@ if ( ! function_exists( 'lpie_get_export_files' ) ) {
 	 * @return array
 	 */
 	function lpie_get_export_files() {
-		$files = array();
-		if ( $filesystem = lpie_filesystem() ) {
+		$files      = array();
+		$filesystem = lpie_filesystem();
+		if ( $filesystem ) {
 			$list = $filesystem->dirlist( lpie_root_path() . '/learnpress/export' );
 			if ( $list ) {
 				foreach ( $list as $file ) {
@@ -259,7 +260,7 @@ if ( ! function_exists( 'lpie_get_import_files' ) ) {
 			if ( $list ) {
 				foreach ( $list as $file ) {
 					// if ( ! preg_match( "/!\.xml$!,|,!\.csv$!/", $file['name'] ) ) {
-					// 	continue;
+					//  continue;
 					// }
 					$files[] = $file;
 				}
@@ -347,6 +348,6 @@ if ( ! function_exists( '_lpie_sort_files' ) ) {
 	 * @return bool
 	 */
 	function _lpie_sort_files( $a, $b ) {
-		return $a['lastmodunix'] < $b['lastmodunix'];
+		return $b['lastmodunix'] - $a['lastmodunix'];
 	}
 }
