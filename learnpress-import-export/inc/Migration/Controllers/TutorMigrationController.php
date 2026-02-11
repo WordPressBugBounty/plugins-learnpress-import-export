@@ -40,7 +40,9 @@ class TutorMigrationController {
 			array(
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
-					'permission_callback' => '__return_true',
+					'permission_callback' => function () {
+						return current_user_can( 'administrator' );
+					},
 					'callback'            => array( $this, 'migrate' ),
 				),
 			)
@@ -51,7 +53,9 @@ class TutorMigrationController {
 			'/delete-migrated-data/tutor',
 			array(
 				'methods'             => WP_REST_Server::DELETABLE,
-				'permission_callback' => '__return_true',
+				'permission_callback' => function () {
+					return current_user_can( 'administrator' );
+				},
 				'callback'            => array( $this, 'delete_migrated_data' ),
 			),
 		);
@@ -1024,75 +1028,77 @@ class TutorMigrationController {
 				}
 
 				//Assignment
-				$migrated_assignments = $this->get_assignments_by_lp_course_parent_id( $lp_course_id );
-				foreach ( $migrated_assignments as $migrated_assignment ) {
+				if ( is_plugin_active( 'learnpress-assignments/learnpress-assignments.php' ) ) {
+					$migrated_assignments = $this->get_assignments_by_lp_course_parent_id( $lp_course_id );
+					foreach ( $migrated_assignments as $migrated_assignment ) {
 //					$tutor_assignment_id = $migrated_assignment['tutor'];
-					$lp_assignment_id = $migrated_assignment['lp'];
+						$lp_assignment_id = $migrated_assignment['lp'];
 
-					$tutor_assignment = TutorAssignmentModel::get_assignment( $tutor_course_id, $tutor_student_id );
-					if ( $tutor_assignment ) {
-						$saved_time = gmdate( LP_Datetime::$format, strtotime( $tutor_assignment->comment_date ) );
+						$tutor_assignment = TutorAssignmentModel::get_assignment( $tutor_course_id, $tutor_student_id );
+						if ( $tutor_assignment ) {
+							$saved_time = gmdate( LP_Datetime::$format, strtotime( $tutor_assignment->comment_date ) );
 
-						$user_assign_item_data = array(
-							'user_id'    => $tutor_student_id,
-							'item_id'    => $lp_assignment_id,
-							'start_time' => $saved_time,
-							'end_time'   => '',
-							'item_type'  => 'lp_assignment',
-							'status'     => 'started',
-							'graduation' => null,
-							'ref_id'     => $lp_course_id,
-							'ref_type'   => LP_COURSE_CPT,
-							'parent_id'  => $user_course_item_id
-						);
+							$user_assign_item_data = array(
+								'user_id'    => $tutor_student_id,
+								'item_id'    => $lp_assignment_id,
+								'start_time' => $saved_time,
+								'end_time'   => '',
+								'item_type'  => 'lp_assignment',
+								'status'     => 'started',
+								'graduation' => null,
+								'ref_id'     => $lp_course_id,
+								'ref_type'   => LP_COURSE_CPT,
+								'parent_id'  => $user_course_item_id
+							);
 
-						$tutor_is_completed_assignment = $tutor_assignment->comment_approved === 'submitted';
-						if ( $tutor_is_completed_assignment ) {
-							$user_assign_item_data['end_time'] = $saved_time;
-							$user_assign_item_data['status']   = 'completed';
-						}
-
-						$user_assign_item = new UserItemModel( $user_assign_item_data );
-						$user_assign_item->save();
-
-						$userAssignmentModel = UserAssignmentModel::find( $user_assign_item->user_id, $lp_course_id, $user_assign_item->item_id, true );
-						//Note
-						$tutor_assign_content = strip_tags( $tutor_assignment->comment_content );
-
-						$userAssignmentModel->set_meta_value_for_key( $userAssignmentModel::META_KEY_ANSWER_NOTE, $tutor_assign_content, true );
-						//Attachments
-						$tutor_assign_attachments = get_comment_meta( $tutor_assignment->comment_ID, 'uploaded_attachments', true );
-						$tutor_assign_attachments = json_decode( $tutor_assign_attachments );
-
-						$lp_assign_attachments = array();
-						if ( ! empty( $tutor_assign_attachments ) && is_array( $tutor_assign_attachments ) ) {
-							foreach ( $tutor_assign_attachments as $tutor_assign_attachment ) {
-								$file_uploaded                                          = [
-									'filename'   => $tutor_assign_attachment->name,
-									'file'       => str_replace( ABSPATH, '', $tutor_assign_attachment->url ),
-									'url'        => str_replace( get_site_url(), '', $tutor_assign_attachment->url ),
-									'type'       => $tutor_assign_attachment->type,
-									'size'       => filesize( $tutor_assign_attachment->url ),
-									'saved_time' => $saved_time,
-								];
-								$lp_assign_attachments[ md5( $file_uploaded['file'] ) ] = $file_uploaded;
+							$tutor_is_completed_assignment = $tutor_assignment->comment_approved === 'submitted';
+							if ( $tutor_is_completed_assignment ) {
+								$user_assign_item_data['end_time'] = $saved_time;
+								$user_assign_item_data['status']   = 'completed';
 							}
-						}
 
-						$userAssignmentModel->set_meta_value_for_key( $userAssignmentModel::META_KEY_ANSWER_UPLOAD, $lp_assign_attachments, true );
-						//Evaluate
-						//Mark
-						$tutor_assignment_mark = get_comment_meta( $tutor_assignment->comment_ID, 'assignment_mark', true );
-						//Note
-						$tutor_assignment_note          = get_comment_meta( $tutor_assignment->comment_ID, 'instructor_note', true );
-						$tutor_assignment_evaluate_time = get_comment_meta( $tutor_assignment->comment_ID, 'evaluate_time', true );
-						if ( $tutor_assignment_evaluate_time ) {
-							$userAssignmentModel->set_meta_value_for_key( $userAssignmentModel::META_KEY_MARK, $tutor_assignment_mark, false );
-							$userAssignmentModel->set_meta_value_for_key( $userAssignmentModel::META_KEY_INSTRUCTOR_NOTE, $tutor_assignment_note, true );
-							$lp_assignment_passing_grade  = get_post_meta( $lp_assignment_id, '_lp_passing_grade', true );
-							$user_assign_item->graduation = $tutor_assignment_mark >= $lp_assignment_passing_grade ? 'passed' : 'failed';
-							$user_assign_item->status     = 'evaluated';
+							$user_assign_item = new UserItemModel( $user_assign_item_data );
 							$user_assign_item->save();
+
+							$userAssignmentModel = UserAssignmentModel::find( $user_assign_item->user_id, $lp_course_id, $user_assign_item->item_id, true );
+							//Note
+							$tutor_assign_content = strip_tags( $tutor_assignment->comment_content );
+
+							$userAssignmentModel->set_meta_value_for_key( $userAssignmentModel::META_KEY_ANSWER_NOTE, $tutor_assign_content, true );
+							//Attachments
+							$tutor_assign_attachments = get_comment_meta( $tutor_assignment->comment_ID, 'uploaded_attachments', true );
+							$tutor_assign_attachments = json_decode( $tutor_assign_attachments );
+
+							$lp_assign_attachments = array();
+							if ( ! empty( $tutor_assign_attachments ) && is_array( $tutor_assign_attachments ) ) {
+								foreach ( $tutor_assign_attachments as $tutor_assign_attachment ) {
+									$file_uploaded                                          = [
+										'filename'   => $tutor_assign_attachment->name,
+										'file'       => str_replace( ABSPATH, '', $tutor_assign_attachment->url ),
+										'url'        => str_replace( get_site_url(), '', $tutor_assign_attachment->url ),
+										'type'       => $tutor_assign_attachment->type,
+										'size'       => filesize( $tutor_assign_attachment->url ),
+										'saved_time' => $saved_time,
+									];
+									$lp_assign_attachments[ md5( $file_uploaded['file'] ) ] = $file_uploaded;
+								}
+							}
+
+							$userAssignmentModel->set_meta_value_for_key( $userAssignmentModel::META_KEY_ANSWER_UPLOAD, $lp_assign_attachments, true );
+							//Evaluate
+							//Mark
+							$tutor_assignment_mark = get_comment_meta( $tutor_assignment->comment_ID, 'assignment_mark', true );
+							//Note
+							$tutor_assignment_note          = get_comment_meta( $tutor_assignment->comment_ID, 'instructor_note', true );
+							$tutor_assignment_evaluate_time = get_comment_meta( $tutor_assignment->comment_ID, 'evaluate_time', true );
+							if ( $tutor_assignment_evaluate_time ) {
+								$userAssignmentModel->set_meta_value_for_key( $userAssignmentModel::META_KEY_MARK, $tutor_assignment_mark, false );
+								$userAssignmentModel->set_meta_value_for_key( $userAssignmentModel::META_KEY_INSTRUCTOR_NOTE, $tutor_assignment_note, true );
+								$lp_assignment_passing_grade  = get_post_meta( $lp_assignment_id, '_lp_passing_grade', true );
+								$user_assign_item->graduation = $tutor_assignment_mark >= $lp_assignment_passing_grade ? 'passed' : 'failed';
+								$user_assign_item->status     = 'evaluated';
+								$user_assign_item->save();
+							}
 						}
 					}
 				}
@@ -1103,7 +1109,7 @@ class TutorMigrationController {
 				if ( $tutor_is_completed_course ) {
 					$lp_student->finish_course( $lp_course_id );
 					$user_course = $lp_student->get_course_data( $lp_course_id );
-					$user_course->set_end_time( gmdate( LP_Datetime::$format, strtotime( $tutor_is_completed_course->comment_date ) ) );
+					$user_course->set_end_time( gmdate( LP_Datetime::$format, strtotime( $tutor_is_completed_course->comment_date ?? '' ) ) );
 				}
 
 				$tutor_migrated_process_course_data[] = array(

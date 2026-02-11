@@ -8,6 +8,8 @@
  */
 
 // Prevent loading this file directly
+use LearnPress\Models\UserModel;
+
 defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
@@ -151,7 +153,7 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 
 			wp_register_style(
 				'learn-press-import-export-style',
-				$this->get_plugin_url( 'assets/css/export-import.css' ),
+				$this->get_plugin_url( "assets/dist/css/admin/export-import{$is_rtl}{$min}.css" ),
 				array(),
 				$ver
 			);
@@ -175,6 +177,10 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 		 * Delete file what was imported/exported.
 		 */
 		private function _delete_files() {
+			if ( ! current_user_can( UserModel::ROLE_ADMINISTRATOR ) ) {
+				wp_die( __( 'You do not have sufficient permissions to action.' ) );
+			}
+
 			// delete file
 			if ( ! empty( $_REQUEST['delete-export'] ) && wp_verify_nonce(
 				$_REQUEST['nonce'],
@@ -184,7 +190,7 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 				if ( $file ) {
 					$file = explode( ',', $file );
 					foreach ( $file as $f ) {
-						lpie_delete_file( 'learnpress/export/' . $f );
+						lpie_delete_file( 'learnpress/export/' . basename( $f ) );
 					}
 				}
 				wp_redirect( admin_url( 'admin.php?page=learnpress-import-export&tab=export' ) );
@@ -198,7 +204,7 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 				if ( $file ) {
 					$file = explode( ',', $file );
 					foreach ( $file as $f ) {
-						lpie_delete_file( 'learnpress/import/' . $f );
+						lpie_delete_file( 'learnpress/import/' . basename( $f ) );
 					}
 				}
 				wp_redirect( admin_url( 'admin.php?page=learnpress-import-export&tab=import' ) );
@@ -216,6 +222,7 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 				'lpie-download-export-file'
 			) ) {
 				$file = learn_press_get_request( 'download-export' );
+				$file = basename( $file );
 				lpie_export_header( $file );
 				echo lpie_get_contents( 'learnpress/export/' . $file );
 				die();
@@ -226,6 +233,7 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 				'lpie-download-import-file'
 			) ) {
 				$file = learn_press_get_request( 'download-import' );
+				$file = basename( $file );
 				lpie_export_header( $file );
 				echo lpie_get_contents( 'learnpress/import/' . $file );
 				die();

@@ -15,8 +15,20 @@ $user_id   = $data['tutor_migrate_user_id'] ?? 0;
 $user      = get_user_by( 'id', $user_id );
 $timestamp = $data['tutor_migrate_time'] ?? 0;
 
+// LearnDash-specific data
+if ( $plugin_name === 'learndash' ) {
+	$user_id   = $data['learndash_migrate_user_id'] ?? 0;
+	$user      = get_user_by( 'id', $user_id );
+	$timestamp = $data['learndash_migrate_time'] ?? 0;
+}
+
 $migrated_course_total = $data['migrated_course_total'] ?? 0;
 $course_total          = $data['course_total'] ?? 0;
+
+// For LearnDash, use content_total as the primary total for button enable/disable
+if ( $plugin_name === 'learndash' && isset( $data['migration_items']['content']['total'] ) ) {
+	$course_total = $data['migration_items']['content']['total'];
+}
 
 $migrated_section_total = $data['migrated_section_total'] ?? 0;
 $section_total          = $data['section_total'] ?? 0;
@@ -30,14 +42,15 @@ $question_total          = $data['question_total'] ?? 0;
 $tutor_migrated_process_course_total = $data['tutor_migrated_process_course_total'] ?? 0;
 $tutor_process_course_total          = $data['tutor_process_course_total'] ?? 0;
 
+$tab = sanitize_text_field( $_GET['tab'] ?? '' );
 ?>
 
 <h2 class="nav-tab-wrapper lp-nav-tab-wrapper">
 	<?php
-	foreach ( $plugins as $plugin ) {
+	foreach ( $plugins as $key => $plugin ) {
 		?>
 		<a href="<?php echo esc_url( $plugin['url'] ) ?>"
-		   class="nav-tab nav-tab-active"><?php echo esc_html( $plugin['title'] ); ?></a>
+		   class="nav-tab <?php echo $tab === $key ? esc_attr( 'nav-tab-active' ) : ''; ?>"><?php echo esc_html( $plugin['title'] ); ?></a>
 		<?php
 	}
 	?>
@@ -49,163 +62,114 @@ $tutor_process_course_total          = $data['tutor_process_course_total'] ?? 0;
 	?>
 	<div class="content <?php echo esc_attr( $current_plugin['name'] ); ?>">
 		<div class="migrate-item-list">
-			<div class="course migrate-item">
-				<?php
-				$template->get_admin_template( 'migration/check-icon.php', compact( 'data' ) );
-				?>
-				<div class="migrate-item-desc">
-					<label><?php esc_html_e( 'Courses Data', 'learnpress-import-export' ); ?></label>
-					<p>
-						<?php esc_html_e( 'Migrate courses into LearnPress.', 'learnpress-import-export' ); ?>
-					</p>
-					<div class="progress">
-						<div class="progress-bar-container">
-							<?php
-							$percentage = 0;
-							if ( $course_total ) {
-								if ( $migrated_course_total > $course_total ) {
-									$percentage = 100;
-								} else {
-									$percentage = round( ( $migrated_course_total / $course_total ) * 100, 2 );
-								}
-							}
-							?>
-							<div class="progress-bar" style="width:<?php echo esc_attr( $percentage ); ?>%"></div>
+			<?php if ( isset( $data['migration_items'] ) ) : ?>
+				<?php foreach ( $data['migration_items'] as $key => $item ) : ?>
+					<div class="step-<?php echo esc_attr( str_replace( '_', '-', $key ) ); ?> migrate-item">
+						<?php $template->get_admin_template( 'migration/check-icon.php', compact( 'data' ) ); ?>
+						<div class="migrate-item-desc">
+							<label><?php echo esc_html( $item['label'] ); ?></label>
+							<p><?php echo esc_html( $item['description'] ); ?></p>
+							<div class="progress">
+								<div class="progress-bar-container">
+									<?php
+									$percentage = 0;
+									if ( $item['total'] ) {
+										$percentage = round( ( $item['migrated'] / $item['total'] ) * 100, 2 );
+										$percentage = min( 100, $percentage );
+									}
+									?>
+									<div class="progress-bar" style="width:<?php echo esc_attr( $percentage ); ?>%"></div>
+								</div>
+								<div class="ratio-num">
+									<span class="migrated-total"><?php echo esc_html( $item['migrated'] ); ?></span>/<span class="total"><?php echo esc_html( $item['total'] ); ?></span>
+								</div>
+							</div>
 						</div>
-						<div class="ratio-num">
-							<span class="migrated-course-total"><?php echo esc_html( $migrated_course_total ) ?></span>/<span
-								class="course-total"><?php echo esc_html( $course_total ); ?></span>
+					</div>
+				<?php endforeach; ?>
+			<?php else : ?>
+				<!-- Tutor LMS items (legacy format) -->
+				<div class="course migrate-item">
+					<?php $template->get_admin_template( 'migration/check-icon.php', compact( 'data' ) ); ?>
+					<div class="migrate-item-desc">
+						<label><?php esc_html_e( 'Courses Data', 'learnpress-import-export' ); ?></label>
+						<p><?php esc_html_e( 'Migrate courses into LearnPress.', 'learnpress-import-export' ); ?></p>
+						<div class="progress">
+							<div class="progress-bar-container">
+								<?php $percentage = $course_total ? min( 100, round( ( $migrated_course_total / $course_total ) * 100, 2 ) ) : 0; ?>
+								<div class="progress-bar" style="width:<?php echo esc_attr( $percentage ); ?>%"></div>
+							</div>
+							<div class="ratio-num">
+								<span class="migrated-course-total"><?php echo esc_html( $migrated_course_total ); ?></span>/<span class="course-total"><?php echo esc_html( $course_total ); ?></span>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="section migrate-item">
-				<?php
-				$template->get_admin_template( 'migration/check-icon.php', compact( 'data' ) );
-				?>
-				<div class="migrate-item-desc">
-					<label><?php esc_html_e( 'Sections Data', 'learnpress-import-export' ); ?></label>
-					<p>
-						<?php esc_html_e( 'Migrate sections into LearnPress.', 'learnpress-import-export' ); ?>
-					</p>
-					<div class="progress">
-						<div class="progress-bar-container">
-							<?php
-							$percentage = 0;
-							if ( $section_total ) {
-								if ( $migrated_section_total > $section_total ) {
-									$percentage = 100;
-								} else {
-									$percentage = round( ( $migrated_section_total / $section_total ) * 100, 2 );
-								}
-							}
-							?>
-							<div class="progress-bar" style="width:<?php echo esc_attr( $percentage ); ?>%"></div>
-						</div>
-						<div class="ratio-num">
-							<span
-								class="migrated-section-total"><?php echo esc_html( $migrated_section_total ) ?></span>/<span
-								class="section-total"><?php echo esc_html( $section_total ); ?></span>
+				<div class="section migrate-item">
+					<?php $template->get_admin_template( 'migration/check-icon.php', compact( 'data' ) ); ?>
+					<div class="migrate-item-desc">
+						<label><?php esc_html_e( 'Sections Data', 'learnpress-import-export' ); ?></label>
+						<p><?php esc_html_e( 'Migrate sections into LearnPress.', 'learnpress-import-export' ); ?></p>
+						<div class="progress">
+							<div class="progress-bar-container">
+								<?php $percentage = $section_total ? min( 100, round( ( $migrated_section_total / $section_total ) * 100, 2 ) ) : 0; ?>
+								<div class="progress-bar" style="width:<?php echo esc_attr( $percentage ); ?>%"></div>
+							</div>
+							<div class="ratio-num">
+								<span class="migrated-section-total"><?php echo esc_html( $migrated_section_total ); ?></span>/<span class="section-total"><?php echo esc_html( $section_total ); ?></span>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-
-			<div class="course-item migrate-item">
-				<?php
-				$template->get_admin_template( 'migration/check-icon.php', compact( 'data' ) );
-				?>
-				<div class="migrate-item-desc">
-					<label><?php esc_html_e( 'Course Items Data', 'learnpress-import-export' ); ?></label>
-					<p>
-						<?php esc_html_e( 'Migrate lessons, quizzes and assignments into LearnPress.', 'learnpress-import-export' ); ?>
-					</p>
-					<div class="progress">
-						<div class="progress-bar-container">
-							<?php
-							$percentage = 0;
-							if ( $course_item_total ) {
-								if ( $migrated_course_item_total > $course_item_total ) {
-									$percentage = 100;
-								} else {
-									$percentage = round( ( $migrated_course_item_total / $course_item_total ) * 100, 2 );
-								}
-							}
-							?>
-							<div class="progress-bar" style="width:<?php echo esc_attr( $percentage ); ?>%"></div>
-						</div>
-						<div class="ratio-num">
-							<span
-								class="migrated-course-item-total"><?php echo esc_html( $migrated_course_item_total ) ?></span>/<span
-								class="course-item-total"><?php echo esc_html( $course_item_total ); ?></span>
+				<div class="course-item migrate-item">
+					<?php $template->get_admin_template( 'migration/check-icon.php', compact( 'data' ) ); ?>
+					<div class="migrate-item-desc">
+						<label><?php esc_html_e( 'Course Items Data', 'learnpress-import-export' ); ?></label>
+						<p><?php esc_html_e( 'Migrate lessons, quizzes and assignments into LearnPress.', 'learnpress-import-export' ); ?></p>
+						<div class="progress">
+							<div class="progress-bar-container">
+								<?php $percentage = $course_item_total ? min( 100, round( ( $migrated_course_item_total / $course_item_total ) * 100, 2 ) ) : 0; ?>
+								<div class="progress-bar" style="width:<?php echo esc_attr( $percentage ); ?>%"></div>
+							</div>
+							<div class="ratio-num">
+								<span class="migrated-course-item-total"><?php echo esc_html( $migrated_course_item_total ); ?></span>/<span class="course-item-total"><?php echo esc_html( $course_item_total ); ?></span>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-
-			<div class="question migrate-item">
-				<?php
-				$template->get_admin_template( 'migration/check-icon.php', compact( 'data' ) );
-				?>
-				<div class="migrate-item-desc">
-					<label><?php esc_html_e( 'Questions Data', 'learnpress-import-export' ); ?></label>
-					<p>
-						<?php esc_html_e( 'Migrate questions into LearnPress.', 'learnpress-import-export' ); ?>
-					</p>
-					<div class="progress">
-						<div class="progress-bar-container">
-							<?php
-							$percentage = 0;
-							if ( $question_total ) {
-								if ( $migrated_question_total > $question_total ) {
-									$percentage = 100;
-								} else {
-									$percentage = round( ( $migrated_question_total / $question_total ) * 100, 2 );
-								}
-							}
-							?>
-							<div class="progress-bar" style="width:<?php echo esc_attr( $percentage ); ?>%"></div>
-						</div>
-						<div class="ratio-num">
-							<span
-								class="migrated-question-total"><?php echo esc_html( $migrated_question_total ) ?></span>/<span
-								class="question-total"><?php echo esc_html( $question_total ); ?></span>
+				<div class="question migrate-item">
+					<?php $template->get_admin_template( 'migration/check-icon.php', compact( 'data' ) ); ?>
+					<div class="migrate-item-desc">
+						<label><?php esc_html_e( 'Questions Data', 'learnpress-import-export' ); ?></label>
+						<p><?php esc_html_e( 'Migrate questions into LearnPress.', 'learnpress-import-export' ); ?></p>
+						<div class="progress">
+							<div class="progress-bar-container">
+								<?php $percentage = $question_total ? min( 100, round( ( $migrated_question_total / $question_total ) * 100, 2 ) ) : 0; ?>
+								<div class="progress-bar" style="width:<?php echo esc_attr( $percentage ); ?>%"></div>
+							</div>
+							<div class="ratio-num">
+								<span class="migrated-question-total"><?php echo esc_html( $migrated_question_total ); ?></span>/<span class="question-total"><?php echo esc_html( $question_total ); ?></span>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-
-			<div class="course-process migrate-item">
-				<?php
-				$template->get_admin_template( 'migration/check-icon.php', compact( 'data' ) );
-				?>
-				<div class="migrate-item-desc">
-					<label><?php esc_html_e( 'User Learning Progress Data', 'learnpress-import-export' ); ?></label>
-					<p>
-						<?php esc_html_e( 'Migrate user learning progress.', 'learnpress-import-export' ); ?>
-					</p>
-					<div class="progress">
-						<div class="progress-bar-container">
-							<?php
-							$percentage = 0;
-							if ( $tutor_process_course_total ) {
-								if ( $tutor_migrated_process_course_total > $tutor_process_course_total ) {
-									$percentage = 100;
-								} else {
-									$percentage = round( ( $tutor_migrated_process_course_total / $tutor_process_course_total ) * 100, 2 );
-								}
-							}
-							?>
-							<div class="progress-bar" style="width:<?php echo esc_attr( $percentage ); ?>%"></div>
-						</div>
-						<div class="ratio-num">
-							<span
-								class="migrated-process-course-total"><?php echo esc_html( $tutor_migrated_process_course_total ); ?></span>/<span
-								class="process-course-total"><?php echo esc_html( $tutor_process_course_total ); ?></span>
+				<div class="course-process migrate-item">
+					<?php $template->get_admin_template( 'migration/check-icon.php', compact( 'data' ) ); ?>
+					<div class="migrate-item-desc">
+						<label><?php esc_html_e( 'User Learning Progress Data', 'learnpress-import-export' ); ?></label>
+						<p><?php esc_html_e( 'Migrate user learning progress.', 'learnpress-import-export' ); ?></p>
+						<div class="progress">
+							<div class="progress-bar-container">
+								<?php $percentage = $tutor_process_course_total ? min( 100, round( ( $tutor_migrated_process_course_total / $tutor_process_course_total ) * 100, 2 ) ) : 0; ?>
+								<div class="progress-bar" style="width:<?php echo esc_attr( $percentage ); ?>%"></div>
+							</div>
+							<div class="ratio-num">
+								<span class="migrated-process-course-total"><?php echo esc_html( $tutor_migrated_process_course_total ); ?></span>/<span class="process-course-total"><?php echo esc_html( $tutor_process_course_total ); ?></span>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
+			<?php endif; ?>
 		</div>
 		<div class="status">
 		</div>
@@ -222,7 +186,7 @@ $tutor_process_course_total          = $data['tutor_process_course_total'] ?? 0;
 						  d="M7.33331 11.8334C7.33331 11.4652 7.63179 11.1667 7.99998 11.1667H8.00665C8.37484 11.1667 8.67331 11.4652 8.67331 11.8334C8.67331 12.2015 8.37484 12.5 8.00665 12.5H7.99998C7.63179 12.5 7.33331 12.2015 7.33331 11.8334Z"
 						  fill="#FF9500"/>
 				</svg>
-				<span><?php esc_html_e( 'Don\'t worry, your TutorLMS data will stay safe during the migration.', 'learnpress-import-export' ); ?></span>
+				<span><?php printf( esc_html__( 'Don\'t worry, your %s data will stay safe during the migration.', 'learnpress-import-export' ), esc_html( $current_plugin['title'] ) ); ?></span>
 			</p>
 			<div class="action">
 				<button id="lp-auto-migrate-btn"

@@ -24,6 +24,11 @@ $current_tab = lpie_get_current_tab();
     </h2>
     <div id="poststuff" class="learn-press-export-import">
         <!--include import or export setting page-->
-		<?php include dirname( __FILE__ ) . "/{$current_tab}.php"; ?>
+		<?php
+		$path_tab = dirname( __FILE__ ) . "/{$current_tab}.php";
+		if ( realpath( $path_tab ) ) {
+			include $path_tab;
+		}
+		?>
     </div>
 </div>

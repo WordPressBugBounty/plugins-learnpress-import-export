@@ -59,9 +59,15 @@ class Config {
 
 		$keys      = explode( ':', $key );
 		$file_name = $keys[0];
+
+		// Security: Prevent traversal
+		if ( strpos( $file_name, '..' ) !== false || strpos( $path, '..' ) !== false ) {
+			return $data_config;
+		}
+
 		$file_path = $this->dir . $path . DIRECTORY_SEPARATOR . $file_name . '.php';
 
-		if ( ! file_exists( $file_path ) ) {
+		if ( ! file_exists( $file_path ) && ! realpath( $file_path ) ) {
 			return $data_config;
 		}
 

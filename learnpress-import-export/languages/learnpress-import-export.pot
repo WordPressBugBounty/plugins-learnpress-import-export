@@ -1,15 +1,15 @@
-# Copyright (C) 2025 ThimPress
+# Copyright (C) 2026 ThimPress
 # This file is distributed under the same license as the LearnPress - Export/Import Courses plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: LearnPress - Export/Import Courses 4.1.0\n"
+"Project-Id-Version: LearnPress - Export/Import Courses 4.1.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/learnpress-import-export\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-11-12T14:08:00+03:00\n"
+"POT-Creation-Date: 2026-02-11T07:39:31+03:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: learnpress-import-export\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #. Plugin URI of the plugin
 #: learnpress-import-export.php
-msgid "https://wordpress.org/plugins/learnpress-import-export/"
+msgid "https://thimpress.com/product/learnpress-export-import/"
 msgstr ""
 
 #. Description of the plugin
@@ -40,53 +40,78 @@ msgid "http://thimpress.com"
 msgstr ""
 
 #: config/migration-plugin.php:10
+#: release/learnpress-import-export/config/migration-plugin.php:10
 msgid "Tutor LMS"
 msgstr ""
 
 #: config/migration-plugin.php:20
+#: release/learnpress-import-export/config/migration-plugin.php:20
 msgid "Migrate the Tutor data to LearnPress with the LearnPress Migration Tool."
+msgstr ""
+
+#: config/migration-plugin.php:26
+#: release/learnpress-import-export/config/migration-plugin.php:26
+msgid "LearnDash"
+msgstr ""
+
+#: config/migration-plugin.php:36
+#: release/learnpress-import-export/config/migration-plugin.php:36
+msgid "Migrate the LearnDash data to LearnPress with the LearnPress Migration Tool."
 msgstr ""
 
 #: config/migration.php:7
 #: config/migration.php:8
+#: release/learnpress-import-export/config/migration.php:7
+#: release/learnpress-import-export/config/migration.php:8
 msgid "Migration Tool"
 msgstr ""
 
 #: inc/admin/background/class-lp-import-export-background.php:69
+#: release/learnpress-import-export/inc/admin/background/class-lp-import-export-background.php:69
 msgid "Order on"
 msgstr ""
 
 #: inc/admin/background/class-lp-import-export-background.php:83
+#: release/learnpress-import-export/inc/admin/background/class-lp-import-export-background.php:83
 msgid "Can not create order"
 msgstr ""
 
 #: inc/admin/providers/learnpress/class-lp-import-user-data.php:101
+#: release/learnpress-import-export/inc/admin/providers/learnpress/class-lp-import-user-data.php:101
 msgid "Course(s) found on this file"
 msgstr ""
 
 #: inc/admin/providers/learnpress/class-lp-import-user-data.php:116
+#: release/learnpress-import-export/inc/admin/providers/learnpress/class-lp-import-user-data.php:116
 msgid "Confirm Import"
 msgstr ""
 
 #: inc/admin/providers/learnpress/class-lp-import-user-data.php:118
 #: inc/admin/views/learnpress/export/step-2.php:48
+#: release/learnpress-import-export/inc/admin/providers/learnpress/class-lp-import-user-data.php:118
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-2.php:48
 msgid "Cancel"
 msgstr ""
 
 #: inc/admin/views/export.php:17
 #: inc/admin/views/settings-page.php:11
+#: release/learnpress-import-export/inc/admin/views/export.php:17
+#: release/learnpress-import-export/inc/admin/views/settings-page.php:11
 msgid "Export"
 msgstr ""
 
 #: inc/admin/views/export.php:27
+#: release/learnpress-import-export/inc/admin/views/export.php:27
 msgid "Select source"
 msgstr ""
 
 #: inc/admin/views/export.php:44
+#: release/learnpress-import-export/inc/admin/views/export.php:44
 msgid "Continue"
 msgstr ""
 
 #: inc/admin/views/export.php:62
+#: release/learnpress-import-export/inc/admin/views/export.php:62
 msgid "Recent exported"
 msgstr ""
 
@@ -94,31 +119,45 @@ msgstr ""
 #: inc/admin/views/export.php:71
 #: inc/admin/views/import.php:66
 #: inc/admin/views/import.php:69
+#: release/learnpress-import-export/inc/admin/views/export.php:68
+#: release/learnpress-import-export/inc/admin/views/export.php:71
+#: release/learnpress-import-export/inc/admin/views/import.php:66
+#: release/learnpress-import-export/inc/admin/views/import.php:69
 msgid "Remove selected"
 msgstr ""
 
 #: inc/admin/views/export.php:78
 #: inc/admin/views/import.php:76
+#: release/learnpress-import-export/inc/admin/views/export.php:78
+#: release/learnpress-import-export/inc/admin/views/import.php:76
 msgid "File"
 msgstr ""
 
 #: inc/admin/views/export.php:79
 #: inc/admin/views/import.php:77
+#: release/learnpress-import-export/inc/admin/views/export.php:79
+#: release/learnpress-import-export/inc/admin/views/import.php:77
 msgid "Time"
 msgstr ""
 
 #: inc/admin/views/export.php:80
 #: inc/admin/views/import.php:78
+#: release/learnpress-import-export/inc/admin/views/export.php:80
+#: release/learnpress-import-export/inc/admin/views/import.php:78
 msgid "Size"
 msgstr ""
 
 #: inc/admin/views/export.php:95
 #: inc/admin/views/import.php:93
+#: release/learnpress-import-export/inc/admin/views/export.php:95
+#: release/learnpress-import-export/inc/admin/views/import.php:93
 msgid "Download"
 msgstr ""
 
 #: inc/admin/views/export.php:98
 #: inc/admin/views/import.php:96
+#: release/learnpress-import-export/inc/admin/views/export.php:98
+#: release/learnpress-import-export/inc/admin/views/import.php:96
 msgid "View"
 msgstr ""
 
@@ -127,384 +166,537 @@ msgstr ""
 #: inc/admin/views/learnpress/import-user/step-1.php:30
 #: inc/admin/views/learnpress/import/step-1.php:30
 #: inc/admin/views/settings-page.php:12
+#: release/learnpress-import-export/inc/admin/views/export.php:101
+#: release/learnpress-import-export/inc/admin/views/import.php:99
+#: release/learnpress-import-export/inc/admin/views/learnpress/import-user/step-1.php:30
+#: release/learnpress-import-export/inc/admin/views/learnpress/import/step-1.php:30
+#: release/learnpress-import-export/inc/admin/views/settings-page.php:12
 msgid "Import"
 msgstr ""
 
 #: inc/admin/views/export.php:104
 #: inc/admin/views/import.php:102
+#: release/learnpress-import-export/inc/admin/views/export.php:104
+#: release/learnpress-import-export/inc/admin/views/import.php:102
 msgid "Remove"
 msgstr ""
 
 #: inc/admin/views/export.php:113
 #: inc/admin/views/import.php:111
+#: release/learnpress-import-export/inc/admin/views/export.php:113
+#: release/learnpress-import-export/inc/admin/views/import.php:111
 msgid "No exported files"
 msgstr ""
 
 #: inc/admin/views/import.php:23
+#: release/learnpress-import-export/inc/admin/views/import.php:23
 msgid "Import Courses"
 msgstr ""
 
 #: inc/admin/views/import.php:60
+#: release/learnpress-import-export/inc/admin/views/import.php:60
 msgid "Recent imported"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-1.php:15
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-1.php:15
 msgid "Select courses"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-1.php:22
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-1.php:22
 msgid "Course"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-1.php:23
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-1.php:23
 msgid "Status"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-1.php:24
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-1.php:24
 msgid "Author/Instructor"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-1.php:53
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-1.php:53
 msgid "Select all"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-1.php:60
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-1.php:60
 msgid "No course available to export."
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-1.php:65
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-1.php:65
 msgid "Next"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-1.php:67
 #: inc/admin/views/learnpress/export/step-2.php:47
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-1.php:67
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-2.php:47
 msgid "Back"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-2.php:13
 #: inc/admin/views/learnpress/export/step-3.php:18
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-2.php:13
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-3.php:18
 msgid "Exporting..."
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-2.php:19
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-2.php:19
 msgid "Download file"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-2.php:22
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-2.php:22
 msgid "Download file after exporting is completed"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-2.php:25
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-2.php:25
 msgid "Save exported file"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-2.php:28
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-2.php:28
 msgid "Save exported file on your server so you can download it later"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-2.php:41
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-2.php:41
 msgid "Custom name of export file"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-2.php:45
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-2.php:45
 msgid "Export now"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-3.php:22
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-3.php:22
 msgid "Exported"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-3.php:36
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-3.php:36
 msgid "Export new"
 msgstr ""
 
 #: inc/admin/views/learnpress/export/step-3.php:38
+#: release/learnpress-import-export/inc/admin/views/learnpress/export/step-3.php:38
 msgid "Export again!"
 msgstr ""
 
 #: inc/admin/views/learnpress/import-user/form-import.php:9
+#: release/learnpress-import-export/inc/admin/views/learnpress/import-user/form-import.php:9
 msgid "Import Users"
 msgstr ""
 
 #: inc/admin/views/learnpress/import-user/form-import.php:30
+#: release/learnpress-import-export/inc/admin/views/learnpress/import-user/form-import.php:30
 msgid "Download example CSV file "
 msgstr ""
 
 #: inc/admin/views/learnpress/import-user/form-import.php:30
+#: release/learnpress-import-export/inc/admin/views/learnpress/import-user/form-import.php:30
 msgid "here"
 msgstr ""
 
 #: inc/admin/views/learnpress/import-user/step-1.php:11
 #: inc/admin/views/learnpress/import/step-1.php:11
+#: release/learnpress-import-export/inc/admin/views/learnpress/import-user/step-1.php:11
+#: release/learnpress-import-export/inc/admin/views/learnpress/import/step-1.php:11
 msgid "Save imported file"
 msgstr ""
 
 #: inc/admin/views/learnpress/import-user/step-1.php:15
 #: inc/admin/views/learnpress/import/step-1.php:15
+#: release/learnpress-import-export/inc/admin/views/learnpress/import-user/step-1.php:15
+#: release/learnpress-import-export/inc/admin/views/learnpress/import/step-1.php:15
 msgid "Save imported file on your server so you can download/import it later"
 msgstr ""
 
 #: inc/admin/views/learnpress/import-user/step-2.php:9
 #: inc/admin/views/learnpress/import/step-2.php:9
+#: release/learnpress-import-export/inc/admin/views/learnpress/import-user/step-2.php:9
+#: release/learnpress-import-export/inc/admin/views/learnpress/import/step-2.php:9
 msgid "Importing..."
 msgstr ""
 
 #: inc/admin/views/learnpress/import-user/step-3.php:12
 #: inc/admin/views/learnpress/import/step-3.php:12
+#: release/learnpress-import-export/inc/admin/views/learnpress/import-user/step-3.php:12
+#: release/learnpress-import-export/inc/admin/views/learnpress/import/step-3.php:12
 msgid "Import Successfully!"
 msgstr ""
 
 #: inc/admin/views/learnpress/import-user/step-3.php:15
 #: inc/admin/views/learnpress/import/step-3.php:15
+#: release/learnpress-import-export/inc/admin/views/learnpress/import-user/step-3.php:15
+#: release/learnpress-import-export/inc/admin/views/learnpress/import/step-3.php:15
 msgid "Import another"
 msgstr ""
 
 #: inc/admin/views/learnpress/import-user/step-3.php:17
 #: inc/admin/views/learnpress/import/step-3.php:17
+#: release/learnpress-import-export/inc/admin/views/learnpress/import-user/step-3.php:17
+#: release/learnpress-import-export/inc/admin/views/learnpress/import/step-3.php:17
 msgid "Import Fail!"
 msgstr ""
 
 #: inc/admin/views/settings-page.php:18
-#: inc/load.php:87
-#: inc/load.php:88
+#: inc/load.php:89
+#: inc/load.php:90
+#: release/learnpress-import-export/inc/admin/views/settings-page.php:18
+#: release/learnpress-import-export/inc/load.php:89
+#: release/learnpress-import-export/inc/load.php:90
 msgid "Import/Export"
 msgstr ""
 
-#: inc/functions.php:162
+#: inc/functions.php:168
+#: release/learnpress-import-export/inc/functions.php:168
 #, php-format
 msgid "Can not create dir [%d]"
 msgstr ""
 
-#: inc/functions.php:171
+#: inc/functions.php:177
+#: release/learnpress-import-export/inc/functions.php:177
 msgid "Error with WP_Filesystem"
 msgstr ""
 
-#: inc/functions.php:271
+#: inc/functions.php:277
+#: release/learnpress-import-export/inc/functions.php:277
 msgid "FileSystem error!"
 msgstr ""
 
-#: inc/functions.php:329
+#: inc/functions.php:334
+#: release/learnpress-import-export/inc/functions.php:334
 #, php-format
 msgid "The file %s doesn't exists"
 msgstr ""
 
-#: inc/Migration/Controllers/EnqueueScriptsController.php:124
+#: inc/LearnDashMigration/LearnDashHelper.php:39
+#: release/learnpress-import-export/inc/LearnDashMigration/LearnDashHelper.php:39
+msgid "Content Migration"
+msgstr ""
+
+#: inc/LearnDashMigration/LearnDashHelper.php:40
+#: release/learnpress-import-export/inc/LearnDashMigration/LearnDashHelper.php:40
+msgid "Migrating courses, lessons, topics, quizzes, and questions to LearnPress."
+msgstr ""
+
+#: inc/LearnDashMigration/LearnDashHelper.php:45
+#: release/learnpress-import-export/inc/LearnDashMigration/LearnDashHelper.php:45
+msgid "Student Progress Migration"
+msgstr ""
+
+#: inc/LearnDashMigration/LearnDashHelper.php:46
+#: release/learnpress-import-export/inc/LearnDashMigration/LearnDashHelper.php:46
+msgid "Migrating user course progress and quiz attempts to LearnPress."
+msgstr ""
+
+#: inc/LearnDashMigration/LearnDashMigrationController.php:108
+#: release/learnpress-import-export/inc/LearnDashMigration/LearnDashMigrationController.php:108
+msgid "Invalid migration step."
+msgstr ""
+
+#: inc/LearnDashMigration/LearnDashMigrationController.php:178
+#: release/learnpress-import-export/inc/LearnDashMigration/LearnDashMigrationController.php:178
+msgid "Migrating content..."
+msgstr ""
+
+#: inc/LearnDashMigration/LearnDashMigrationController.php:211
+#: release/learnpress-import-export/inc/LearnDashMigration/LearnDashMigrationController.php:211
+msgid "LearnDash migration completed successfully!"
+msgstr ""
+
+#: inc/LearnDashMigration/LearnDashMigrationController.php:216
+#: release/learnpress-import-export/inc/LearnDashMigration/LearnDashMigrationController.php:216
+msgid "Migrating student progress..."
+msgstr ""
+
+#: inc/LearnDashMigration/LearnDashMigrationController.php:244
+#: release/learnpress-import-export/inc/LearnDashMigration/LearnDashMigrationController.php:244
+msgid "Cleared all LearnDash migrated data and progress."
+msgstr ""
+
+#: inc/Migration/Controllers/EnqueueScriptsController.php:134
+#: release/learnpress-import-export/inc/Migration/Controllers/EnqueueScriptsController.php:134
 msgid "Migrating!"
 msgstr ""
 
-#: inc/Migration/Controllers/EnqueueScriptsController.php:125
+#: inc/Migration/Controllers/EnqueueScriptsController.php:135
+#: release/learnpress-import-export/inc/Migration/Controllers/EnqueueScriptsController.php:135
 msgid "Success!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:127
+#: inc/Migration/Controllers/TutorMigrationController.php:131
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:131
 msgid "Clear failed!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:135
+#: inc/Migration/Controllers/TutorMigrationController.php:139
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:139
 msgid "Clear successfully!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:159
+#: inc/Migration/Controllers/TutorMigrationController.php:163
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:163
 msgid "Migration Successful!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:160
+#: inc/Migration/Controllers/TutorMigrationController.php:164
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:164
 msgid "The migration from Tutor LMS to LearnPress is successfully done."
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:165
+#: inc/Migration/Controllers/TutorMigrationController.php:169
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:169
 #, php-format
 msgid "Courses Migrated: %s"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:168
+#: inc/Migration/Controllers/TutorMigrationController.php:172
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:172
 #, php-format
 msgid "Lessons Migrated: %s"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:171
+#: inc/Migration/Controllers/TutorMigrationController.php:175
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:175
 #, php-format
 msgid "Quizzes Migrated: %s"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:174
+#: inc/Migration/Controllers/TutorMigrationController.php:178
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:178
 #, php-format
 msgid "Questions Migrated: %s"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:190
+#: inc/Migration/Controllers/TutorMigrationController.php:194
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:194
 msgid "You are not allowed to migrate."
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:194
+#: inc/Migration/Controllers/TutorMigrationController.php:198
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:198
 msgid "There are no tutor courses."
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:203
+#: inc/Migration/Controllers/TutorMigrationController.php:207
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:207
 msgid "The courses have been migrated."
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:207
+#: inc/Migration/Controllers/TutorMigrationController.php:211
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:211
 msgid "Course item is required."
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:293
+#: inc/Migration/Controllers/TutorMigrationController.php:297
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:297
 msgid "Migrated course!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:299
+#: inc/Migration/Controllers/TutorMigrationController.php:303
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:303
 msgid "All course migrated!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:363
+#: inc/Migration/Controllers/TutorMigrationController.php:367
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:367
 msgid "Migrated section!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:369
+#: inc/Migration/Controllers/TutorMigrationController.php:373
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:373
 msgid "All section migrated!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:580
+#: inc/Migration/Controllers/TutorMigrationController.php:584
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:584
 msgid "Migrated course item!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:586
+#: inc/Migration/Controllers/TutorMigrationController.php:590
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:590
 msgid "All course item migrated!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:764
+#: inc/Migration/Controllers/TutorMigrationController.php:768
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:768
 msgid "Migrated question!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:783
+#: inc/Migration/Controllers/TutorMigrationController.php:787
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:787
 msgid "Migrated all question!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:1128
+#: inc/Migration/Controllers/TutorMigrationController.php:1134
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:1134
 msgid "Migrated course process!"
 msgstr ""
 
-#: inc/Migration/Controllers/TutorMigrationController.php:1135
+#: inc/Migration/Controllers/TutorMigrationController.php:1141
+#: release/learnpress-import-export/inc/Migration/Controllers/TutorMigrationController.php:1141
 msgid "All data migrated successfully."
 msgstr ""
 
-#: inc/Migration/Helpers/Template.php:164
+#: inc/Migration/Helpers/Template.php:177
+#: release/learnpress-import-export/inc/Migration/Helpers/Template.php:177
 #, php-format
 msgid "Path %s not exists."
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/before-migrate-popup.php:34
 #: views/admin/before-migrate-popup.php:34
 #, php-format
 msgid "Are you sure you want to migrate from %s to LearnPress ?"
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/before-migrate-popup.php:36
+#: release/learnpress-import-export/views/admin/clear-migrated-data-popup.php:35
 #: views/admin/before-migrate-popup.php:36
 #: views/admin/clear-migrated-data-popup.php:35
 msgid "No, Maybe Later!"
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/before-migrate-popup.php:37
+#: release/learnpress-import-export/views/admin/clear-migrated-data-popup.php:36
 #: views/admin/before-migrate-popup.php:37
 #: views/admin/clear-migrated-data-popup.php:36
 msgid "Yes, Let' start!"
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/clear-migrated-data-popup.php:33
 #: views/admin/clear-migrated-data-popup.php:33
 msgid "Are you sure? This will reset the migration process, and all migrated data on LearnPress will be deleted."
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/migrate-success-popup.php:19
 #: views/admin/migrate-success-popup.php:19
 msgid "Go To Course Lists"
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/migrate-success-popup.php:20
 #: views/admin/migrate-success-popup.php:20
 msgid "View Report"
 msgstr ""
 
-#: views/admin/migration.php:57
+#: release/learnpress-import-export/views/admin/migration.php:95
+#: views/admin/migration.php:95
 msgid "Courses Data"
 msgstr ""
 
-#: views/admin/migration.php:59
+#: release/learnpress-import-export/views/admin/migration.php:96
+#: views/admin/migration.php:96
 msgid "Migrate courses into LearnPress."
 msgstr ""
 
-#: views/admin/migration.php:87
+#: release/learnpress-import-export/views/admin/migration.php:111
+#: views/admin/migration.php:111
 msgid "Sections Data"
 msgstr ""
 
-#: views/admin/migration.php:89
+#: release/learnpress-import-export/views/admin/migration.php:112
+#: views/admin/migration.php:112
 msgid "Migrate sections into LearnPress."
 msgstr ""
 
-#: views/admin/migration.php:119
+#: release/learnpress-import-export/views/admin/migration.php:127
+#: views/admin/migration.php:127
 msgid "Course Items Data"
 msgstr ""
 
-#: views/admin/migration.php:121
+#: release/learnpress-import-export/views/admin/migration.php:128
+#: views/admin/migration.php:128
 msgid "Migrate lessons, quizzes and assignments into LearnPress."
 msgstr ""
 
-#: views/admin/migration.php:151
+#: release/learnpress-import-export/views/admin/migration.php:143
+#: views/admin/migration.php:143
 msgid "Questions Data"
 msgstr ""
 
-#: views/admin/migration.php:153
+#: release/learnpress-import-export/views/admin/migration.php:144
+#: views/admin/migration.php:144
 msgid "Migrate questions into LearnPress."
 msgstr ""
 
-#: views/admin/migration.php:183
+#: release/learnpress-import-export/views/admin/migration.php:159
+#: views/admin/migration.php:159
 msgid "User Learning Progress Data"
 msgstr ""
 
-#: views/admin/migration.php:185
+#: release/learnpress-import-export/views/admin/migration.php:160
+#: views/admin/migration.php:160
 msgid "Migrate user learning progress."
 msgstr ""
 
-#: views/admin/migration.php:225
-msgid "Don't worry, your TutorLMS data will stay safe during the migration."
+#: release/learnpress-import-export/views/admin/migration.php:189
+#: views/admin/migration.php:189
+#, php-format
+msgid "Don't worry, your %s data will stay safe during the migration."
 msgstr ""
 
-#: views/admin/migration.php:230
+#: release/learnpress-import-export/views/admin/migration.php:194
+#: views/admin/migration.php:194
 msgid "Migrate Now"
 msgstr ""
 
-#: views/admin/migration.php:233
+#: release/learnpress-import-export/views/admin/migration.php:197
+#: views/admin/migration.php:197
 msgid "Clear Migrated Data"
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/migration/header.php:10
 #: views/admin/migration/header.php:10
 msgid "Migration"
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/migration/report.php:21
 #: views/admin/migration/report.php:21
 #, php-format
 msgid "Migrate %1s - By %2s"
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/migration/report.php:23
 #: views/admin/migration/report.php:23
 #, php-format
 msgid "Course Migrated (%s)"
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/migration/report.php:51
 #: views/admin/migration/report.php:51
 #, php-format
 msgid "Course : %1s"
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/migration/report.php:55
 #: views/admin/migration/report.php:55
 msgid "View Course"
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/migration/report.php:69
 #: views/admin/migration/report.php:69
 #, php-format
 msgid "Lesson : %1s"
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/migration/report.php:86
 #: views/admin/migration/report.php:86
 #, php-format
 msgid "Quiz : %1s"
 msgstr ""
 
+#: release/learnpress-import-export/views/admin/migration/report.php:103
 #: views/admin/migration/report.php:103
 #, php-format
 msgid "Assignment : %1s"

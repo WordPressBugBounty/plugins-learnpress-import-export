@@ -16,9 +16,10 @@ class SourceAsset {
 	 * Constructor
 	 */
 	protected function __construct() {
-		if ( Debug::is_debug() ) {
+		$this->version = LP_ADDON_IMPORT_EXPORT_VER;
+		if ( \LP_Debug::is_debug() ) {
 			$this->min     = '';
-			$this->version = Debug::is_debug() ? uniqid() : LP_ADDON_IMPORT_EXPORT_VERSION;
+			$this->version = uniqid();
 		}
 
 		$this->is_rtl = is_rtl() ? '-rtl' : '';

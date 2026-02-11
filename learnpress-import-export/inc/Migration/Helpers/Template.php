@@ -44,6 +44,11 @@ class Template {
 	 * @version 1.0.0
 	 */
 	public function get_admin_template( string $file_name = '', array $args = array() ) {
+		// Prevent traversal
+		if ( strpos( $file_name, '..' ) !== false ) {
+			return;
+		}
+
 		$file_name = str_replace( '.php', '', $file_name );
 		$path_file = LP_ADDON_IMPORT_EXPORT_VIEWS . "admin/{$file_name}.php";
 
@@ -61,6 +66,10 @@ class Template {
 	 * @version 1.0.0
 	 */
 	protected function get_frontend_template( string $file_name = '', array $args = array() ) {
+		// Prevent traversal
+		if ( strpos( $file_name, '..' ) !== false ) {
+			return;
+		}
 		// If enable check is block template
 		/*if ( $this->separate ) {
 			$file_name = ( wp_is_block_theme() ? 'block' : 'classic' ) . '/' . $file_name;
@@ -153,15 +162,19 @@ class Template {
 	 * @version 1.0.0
 	 */
 	protected function get_template( string $path_file, array $args = array() ) {
-		extract( $args );
-		if ( file_exists( $path_file ) ) {
+		// Security: Prevent overwriting critical variables
+		unset( $args['path_file'], $args['args'], $args['this'] );
+
+		extract( $args, EXTR_SKIP );
+
+		if ( file_exists( $path_file ) && realpath( $path_file ) ) {
 			if ( $this->include ) {
 				include $path_file;
 			} else {
 				return $path_file;
 			}
 		} else {
-			printf( esc_html__( 'Path %s not exists.', 'learnpress-import-export' ), $path_file );
+			printf( esc_html__( 'Path %s not exists.', 'learnpress-import-export' ), esc_html( $path_file ) );
 			?>
 			<br>
 			<?php

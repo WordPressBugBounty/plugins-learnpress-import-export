@@ -21,6 +21,22 @@ if ( $is_tutor_active ) {
 	);
 }
 
+if ( Plugin::is_learndash_active() ) {
+	$config_data['learndash'] = array(
+		'title' => esc_html__( 'LearnDash', 'learnpress-import-export' ),
+		'name'  => 'learndash',
+		'icon'  => LP_ADDON_IMPORT_EXPORT_ASSETS_URL . '/images/learndash-128x128.png',
+		'url'   => add_query_arg(
+			array(
+				'page' => 'lp-migration-tool',
+				'tab'  => 'learndash'
+			),
+			admin_url( 'admin.php' )
+		),
+		'desc'  => esc_html__( 'Migrate the LearnDash data to LearnPress with the LearnPress Migration Tool.', 'learnpress-import-export' )
+	);
+}
+
 return apply_filters(
 	'learnpress-import-export/filter/config/migration-plugin',
 	$config_data

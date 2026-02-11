@@ -54,7 +54,9 @@ class AdminMenuController {
 
 			$data['migrated_course'] = $migrated_course;
 			if ( $current_plugin['name'] === 'tutor' ) {
-				$data = array_merge($data, Tutor::get_data());
+				$data = array_merge( $data, Tutor::get_data() );
+			} elseif ( $current_plugin['name'] === 'learndash' ) {
+				$data = array_merge( $data, \LPImportExport\LearnDashMigration\LearnDashHelper::get_data() );
 			}
 		}
 

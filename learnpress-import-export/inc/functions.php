@@ -26,7 +26,13 @@ if ( ! function_exists( 'lpie_admin_view' ) ) {
 		if ( is_array( $args ) ) {
 			extract( $args );
 		}
-		include LP_ADDON_IMPORT_EXPORT_INC . "admin/views/{$name}";
+
+		$path = realpath( LP_ADDON_IMPORT_EXPORT_INC . "admin/views/{$name}" );
+		if ( ! $path || ! file_exists( $path ) ) {
+			return;
+		}
+
+		include $path;
 	}
 }
 
@@ -308,9 +314,8 @@ if ( ! function_exists( 'lpie_get_current_tab' ) ) {
 	 * @return string
 	 */
 	function lpie_get_current_tab() {
-		$current_tab = ! empty( $_REQUEST['tab'] ) ? $_REQUEST['tab'] : 'export';
-
-		return $current_tab;
+		//$current_tab = ! empty( $_REQUEST['tab'] ) ? $_REQUEST['tab'] : 'export';
+		return LP_Request::get_param( 'tab', 'export', 'key' );
 	}
 }
 

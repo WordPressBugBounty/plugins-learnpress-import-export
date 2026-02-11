@@ -23,7 +23,7 @@ class EnqueueScriptsController {
 	 * EnqueueScripts constructor.
 	 */
 	public function __construct() {
-		if ( Debug::is_debug() ) {
+		if ( \LP_Debug::is_debug() ) {
 			$this->version_assets = uniqid();
 		}
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
@@ -107,6 +107,16 @@ class EnqueueScriptsController {
 					'tutor_course_item_total'    => TutorCourseItemModel::get_course_item_total(),
 					'tutor_question_total'       => TutorQuestionModel::get_question_total(),
 					'tutor_course_process_total' => TutorCourseModel::get_process_course_total(),
+				)
+			);
+		}
+
+		if ( Plugin::is_learndash_active() ) {
+			$scripts = array_merge(
+				$scripts,
+				array(
+					'learndash_content_total'         => \LPImportExport\LearnDashMigration\LearnDashHelper::get_content_total(),
+					'learndash_student_migrate_total' => \LPImportExport\LearnDashMigration\LearnDashHelper::get_student_migrate_total(),
 				)
 			);
 		}

@@ -107,7 +107,13 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 		 * Import process.
 		 */
 		public function do_import() {
-			$file_data   = $this->parse( lpie_root_path() . '/learnpress/' . $_REQUEST['import-file'] );
+			$import_file      = LP_Request::get_param( 'import-file' );
+			$path_import_file = realpath( lpie_root_path() . '/learnpress/' . $import_file );
+			if ( ! $path_import_file ) {
+				return;
+			}
+
+			$file_data   = $this->parse( $path_import_file );
 			$map_authors = learn_press_get_request( 'map_authors' );
 			$new_authors = learn_press_get_request( 'new_authors' );
 
@@ -121,7 +127,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 						$user_data = array(
 							'user_login' => $new_authors[ $old_author['author_id'] ],
 							'user_pass'  => wp_generate_password(),
-							'role'       => 'teacher'
+							'role'       => 'teacher',
 						);
 					} else {
 						$user_data = array(
@@ -131,7 +137,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 							'display_name' => $old_author['author_display_name'],
 							'first_name'   => isset( $old_author['author_first_name'] ) ? $old_author['author_first_name'] : '',
 							'last_name'    => isset( $old_author['author_last_name'] ) ? $old_author['author_last_name'] : '',
-							'role'         => 'teacher'
+							'role'         => 'teacher',
 						);
 					}
 					$user_id = wp_insert_user( $user_data );
@@ -153,7 +159,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 				// if have posts then import the categories and/or tags first
 				// if success, store the new ID of category/tag into an array to map the old ID with new ID
 				foreach ( $posts as $post ) {
-					if ( ! empty( $post['terms'] ) ):
+					if ( ! empty( $post['terms'] ) ) :
 						foreach ( $post['terms'] as $term ) {
 							if ( $term['domain'] == 'course_category' ) {
 								$this->process_category( $term, $post );
@@ -209,7 +215,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 				if ( ! file_exists( lpie_import_path() ) ) {
 					mkdir( lpie_import_path(), 0777, true );
 				}
-				copy( lpie_root_path() . '/learnpress/' . $_REQUEST['import-file'], lpie_import_path() . '/' . basename( $_REQUEST['import-file'] ) );
+				LP_WP_Filesystem::instance()->copy( $path_import_file, lpie_import_path() . '/' . basename( $import_file ) );
 			}
 
 			$GLOBALS['is_imported_done'] = true;
