@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * @return string
  */
 function wxr_cdata( $str ) {
-	if ( seems_utf8( $str ) == false )
+	if ( wp_is_valid_utf8( $str ) == false )
 		$str = utf8_encode( $str );
 
 	// $str = ent2ncr(esc_html($str));

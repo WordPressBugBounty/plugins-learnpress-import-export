@@ -177,15 +177,15 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 		 * Delete file what was imported/exported.
 		 */
 		private function _delete_files() {
-			if ( ! current_user_can( UserModel::ROLE_ADMINISTRATOR ) ) {
-				wp_die( __( 'You do not have sufficient permissions to action.' ) );
-			}
-
 			// delete file
 			if ( ! empty( $_REQUEST['delete-export'] ) && wp_verify_nonce(
 				$_REQUEST['nonce'],
 				'lpie-delete-export-file'
 			) ) {
+				if ( ! current_user_can( UserModel::ROLE_ADMINISTRATOR ) ) {
+					wp_die( __( 'You do not have sufficient permissions to action.' ) );
+				}
+
 				$file = learn_press_get_request( 'delete-export' );
 				if ( $file ) {
 					$file = explode( ',', $file );
@@ -200,6 +200,10 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 				$_REQUEST['nonce'],
 				'lpie-delete-import-file'
 			) ) {
+				if ( ! current_user_can( UserModel::ROLE_ADMINISTRATOR ) ) {
+					wp_die( __( 'You do not have sufficient permissions to action.' ) );
+				}
+
 				$file = learn_press_get_request( 'delete-import' );
 				if ( $file ) {
 					$file = explode( ',', $file );

@@ -8,6 +8,9 @@
  */
 
 // Prevent loading this file directly
+use LearnPress\Models\CourseModel;
+use LearnPress\Models\CoursePostModel;
+
 defined( 'ABSPATH' ) || exit;
 
 // Load Importer API
@@ -70,15 +73,17 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 		 * LP_Import_LearnPress_Provider constructor.
 		 */
 		public function __construct() {
-
-			if ( ! empty( LP_Request::get_param('lpie_import_course_data') ) ) {
-				add_action( 'lpie_import_view_step_1', array( $this, 'step_1' ) );
-				add_action( 'lpie_import_view_step_2', array( $this, 'step_2' ) );
-				add_action( 'lpie_import_view_step_3', array( $this, 'step_3' ) );
+			if ( ! empty( LP_Request::get_param( 'lpie_import_course_data' ) ) ) {
+				try {
+					add_action( 'lpie_import_view_step_1', array( $this, 'step_1' ) );
+					add_action( 'lpie_import_view_step_2', array( $this, 'step_2' ) );
+					add_action( 'lpie_import_view_step_3', array( $this, 'step_3' ) );
+				} catch ( Throwable $e ) {
+					LP_Debug::error_log( $e );
+				}
 			}
 
 			require_once LP_ADDON_IMPORT_EXPORT_INC . 'admin/providers/learnpress/lp-import-functions.php';
-
 		}
 
 		/**
@@ -105,6 +110,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 
 		/**
 		 * Import process.
+		 * @throws Exception
 		 */
 		public function do_import() {
 			$import_file      = LP_Request::get_param( 'import-file' );
@@ -174,26 +180,40 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 				$this->posts_count    = count( $posts );
 				$this->posts_imported = 0;
 
-				// import all courses, lessons, quizzes, questions
+				// Import all courses, lessons, quizzes, questions
 				foreach ( $posts as $post ) {
-					if ( $post['post_type'] == 'lp_course' ) {
+					/*if ( $post['post_type'] == 'lp_course' ) {
 						$args = array(
-							'update_date'     => isset( $args['update_date'] ) ? true : false,
-							'check_duplicate' => isset( $args['check_duplicate'] ) ? true : false,
+							'update_date'     => isset( $args['update_date'] ),
+							'check_duplicate' => isset( $args['check_duplicate'] ),
 						);
 					} else {
 						$args = array(
-							'update_date' => isset( $args['update_date'] ) ? true : false,
+							'update_date' => isset( $args['update_date'] ),
 						);
-					}
-					$post_id = $this->process_post( $post, $args );
-					if ( ! $post_id ) {
-						continue;
+					}*/
+
+					if ( $post['post_type'] == LP_COURSE_CPT ) {
+						$this->process_course( $post );
+					} else {
+						$post_id = $this->process_post( $post );
+
+						switch ( $post['post_type'] ) {
+							case LP_QUIZ_CPT:
+								$this->process_quiz_questions( $post );
+								break;
+							case LP_QUESTION_CPT:
+								$this->process_question_answers( $post );
+								$this->process_question_answers_meta( $post );
+								break;
+						}
+
+						do_action( 'learn-press/import/process-type', $post, $this->processed_posts );
 					}
 				} //end foreach
 
 				// Import section
-				foreach ( $posts as $post ) {
+				/*foreach ( $posts as $post ) {
 					switch ( $post['post_type'] ) {
 						case LP_COURSE_CPT:
 							$this->process_sections( $post );
@@ -208,7 +228,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 							break;
 					}
 					do_action( 'learn-press/import/process-type', $post, $this->processed_posts );
-				}
+				}*/
 			}
 
 			if ( ! empty( $_REQUEST['save_import'] ) ) {
@@ -234,6 +254,9 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 			return $parser->parse( $file );
 		}
 
+		/**
+		 * @deprecated 4.1.2
+		 */
 		public function save_extra_course_data( $post ) {
 			$old_post_id = $post['post_id'];
 			$post_id     = ! empty( $this->processed_posts[ $old_post_id ] ) ? $this->processed_posts[ $old_post_id ] : 0;
@@ -289,7 +312,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 			$category_description = isset( $cat['description'] ) ? $cat['description'] : '';
 			$category_arr         = array(
 				'parent'      => $category_parent ? ( is_array( $category_parent ) ? $category_parent['term_id'] : $category_parent ) : 0,
-				'description' => $category_description
+				'description' => $category_description,
 			);
 
 			$term = wp_insert_term( $cat['name'], 'course_category', $category_arr );
@@ -325,10 +348,10 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 			}
 
 			$category_parent      = empty( $tag['parent'] ) ? 0 : term_exists( $tag['parent'] );
-			$category_description = isset( $tag['description'] ) ? $tag['description'] : '';
+			$category_description = $tag['description'] ?? '';
 			$catarr               = array(
 				'parent'      => $category_parent ? ( is_array( $category_parent ) ? $category_parent['term_id'] : $category_parent ) : 0,
-				'description' => $category_description
+				'description' => $category_description,
 			);
 
 			$term = wp_insert_term( $tag['name'], 'course_tag', $catarr );
@@ -336,7 +359,6 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 				if ( isset( $tag['id'] ) ) {
 					$this->processed_terms[ intval( $tag['id'] ) ] = (int) $term['term_id'];
 				}
-
 			}
 
 			return false;
@@ -354,13 +376,13 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 			if ( ! isset( $this->processed_thumbnails[ $attachment['id'] ] ) ) {
 				// if it is an url, try to read it
 				if ( preg_match( '!^https?://!', $attachment['data'] ) ) {
-					$arrContextOptions=array(
-						"ssl"=>array(
-							"verify_peer"=>false,
-							"verify_peer_name"=>false,
+					$arrContextOptions = array(
+						'ssl' => array(
+							'verify_peer'      => false,
+							'verify_peer_name' => false,
 						),
 					);
-					$data = @file_get_contents($attachment['data'], false, stream_context_create($arrContextOptions));
+					$data              = @file_get_contents( $attachment['data'], false, stream_context_create( $arrContextOptions ) );
 				} else {
 					$data = base64_decode( $attachment['data'] );
 				}
@@ -389,11 +411,11 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 									'post_parent'    => $post_id,
 									'post_title'     => preg_replace( '/\.[^.]+$/', '', $filename ),
 									'post_content'   => '',
-									'post_status'    => 'inherit'
+									'post_status'    => 'inherit',
 								);
 								$attachment_id  = wp_insert_attachment( $new_attachment, $upload_file['file'], $post_id );
 								if ( ! is_wp_error( $attachment_id ) ) {
-									require_once( ABSPATH . "wp-admin" . '/includes/image.php' );
+									require_once ABSPATH . 'wp-admin' . '/includes/image.php';
 									$attachment_data = wp_generate_attachment_metadata( $attachment_id, $upload_file['file'] );
 									wp_update_attachment_metadata( $attachment_id, $attachment_data );
 
@@ -425,16 +447,16 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 				$args,
 				array(
 					'check_duplicate' => false,
-					'update_date'     => false
+					'update_date'     => false,
 				)
 			);
 			$original_post_ID = $post['post_id'];
 			$post_id          = 0;
-			if ( $args['check_duplicate'] && ( $duplication_id = $this->_post_exists( array( 'post_name' => $post['post_name'] ) ) ) ) {
+			/*if ( $args['check_duplicate'] && ( $duplication_id = $this->_post_exists( array( 'post_name' => $post['post_name'] ) ) ) ) {
 				$this->posts_duplication[] = $duplication_id;
 
 				return $post_id;
-			}
+			}*/
 
 			if ( isset( $this->processed_posts[ $original_post_ID ] ) && ! empty( $original_post_ID ) ) {
 				return $post_id;
@@ -476,11 +498,11 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 					'post_parent'    => 0,
 					'menu_order'     => $post['menu_order'],
 					'post_type'      => $post['post_type'],
-					'post_password'  => $post['post_password']
+					'post_password'  => $post['post_password'],
 				);
 				$post_id  = wp_insert_post( $postdata, true );
 				if ( $post_id ) {
-					$this->posts_imported ++;
+					++$this->posts_imported;
 				}
 				if ( $post['is_sticky'] == 1 ) {
 					stick_post( $post_id );
@@ -520,7 +542,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 						}
 					}
 
-					if ( $key && ! $this->_is_old_meta( $key ) ) {
+					if ( $key ) {
 						// export gets meta straight from the DB so could have a serialized string
 						if ( ! $value ) {
 							$value = maybe_unserialize( $meta['value'] );
@@ -543,9 +565,68 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 		}
 
 		/**
+		 * Import course.
+		 *
+		 * @throws Exception
+		 */
+		public function process_course( $data ) {
+			// Create new course
+			$data['post_author'] = $data['post_author_id'] ?? 0;
+			$data['post_status'] = $data['status'] ?? $data['post_status'] ?? 0;
+			$coursePostModel     = new CoursePostModel( $data );
+			$coursePostModel->save();
+
+			// Create curriculum for course
+			$course_section = $data['section'] ?? [];
+			if ( ! empty( $course_section ) ) {
+				foreach ( $course_section as $section_order => $section ) {
+					$sectionNew = $coursePostModel->add_section( $section );
+
+					$section_items = $section['items'] ?? [];
+					usort(
+						$section_items,
+						function ( $a, $b ) {
+							return $a['item_order'] - $b['item_order'];
+						}
+					);
+					$section_items = array_map(
+						function ( $item ) {
+							return array(
+								'id'   => $item['item_id'] ?? 0,
+								'type' => $item['item_type'] ?? '',
+							);
+						},
+						$section_items
+					);
+
+					if ( ! empty( $section_items ) ) {
+						$section['items'] = $section_items;
+						$sectionNew->add_items( $section );
+					}
+				}
+			}
+
+			// Save metadata for CourseModel, set price.
+			$courseModel = new CourseModel( $coursePostModel );
+			$data_meta   = $data['postmeta'] ?? [];
+			foreach ( $data_meta as $meta ) {
+				$meta_key   = $meta['key'] ?? '';
+				$meta_value = maybe_unserialize( $meta['value'] ?? '' );
+				if ( empty( $meta_key ) ) {
+					continue;
+				}
+				$coursePostModel->save_meta_value_by_key( $meta_key, $meta_value );
+				$courseModel->meta_data->{$meta_key} = $meta_value;
+			}
+			$courseModel->save();
+			$coursePostModel->save();
+		}
+
+		/**
 		 * Import course sections.
 		 *
 		 * @param $post
+		 * @deprecated 4.1.2
 		 */
 		public function process_sections( $post ) {
 			global $wpdb;
@@ -562,7 +643,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 							'section_name'        => $section['section_name'],
 							'section_description' => $section['section_description'],
 							'section_course_id'   => $post_id,
-							'section_order'       => $section_order + 1
+							'section_order'       => $section_order + 1,
 						),
 						array( '%s', '%s', '%d', '%d' )
 					);
@@ -609,9 +690,9 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 						array(
 							'quiz_id'        => $post_id,
 							'question_id'    => $question_id,
-							'question_order' => $question['question_order']
+							'question_order' => $question['question_order'],
 						),
-						array( '%d', '%d' , '%d' )
+						array( '%d', '%d', '%d' )
 					) : 0;
 				}
 			}
@@ -632,13 +713,13 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 					$inserted = $wpdb->insert(
 						$wpdb->prefix . 'learnpress_question_answers',
 						array(
-							'question_id'  => $post_id,
-							'title'  => $answer['title'],
-							'value'  => $answer['value'],
-							'order'  => $answer['order'],
-							'is_true'  => $answer['is_true'],
+							'question_id' => $post_id,
+							'title'       => $answer['title'],
+							'value'       => $answer['value'],
+							'order'       => $answer['order'],
+							'is_true'     => $answer['is_true'],
 						),
-						array( '%d', '%s', '%s', '%d','%s')
+						array( '%d', '%s', '%s', '%d', '%s' )
 					);
 				}
 			}
@@ -680,6 +761,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 		 * @param $fields
 		 *
 		 * @return int|null|string
+		 * @deprecated 4.1.2
 		 */
 		private function _post_exists( $fields ) {
 			global $wpdb;
@@ -689,27 +771,27 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 				array(
 					'post_name'  => '',
 					'post_type'  => 'lp_course',
-					'post_title' => ''
+					'post_title' => '',
 				)
 			);
 			$query  = "SELECT ID FROM $wpdb->posts WHERE 1=1";
 			$args   = array();
 			extract( $fields );
-			if ( ! empty ( $post_name ) ) {
-				$query  .= " AND post_name LIKE '%s' ";
+			if ( ! empty( $post_name ) ) {
+				$query .= " AND post_name LIKE '%s' ";
 				$args[] = $post_name;
 			}
-			if ( ! empty ( $post_type ) ) {
-				$query  .= " AND post_type = '%s' ";
+			if ( ! empty( $post_type ) ) {
+				$query .= " AND post_type = '%s' ";
 				$args[] = $post_type;
 			}
 
 			if ( ! empty( $post_title ) ) {
-				$query  .= " AND post_title = '%s' ";
+				$query .= " AND post_title = '%s' ";
 				$args[] = $post_title;
 			}
 			//echo $wpdb->prepare($query, $args);die();
-			if ( ! empty ( $args ) ) {
+			if ( ! empty( $args ) ) {
 				return $wpdb->get_var( $wpdb->prepare( $query, $args ) );
 			}
 
@@ -722,6 +804,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 		 * @param $key
 		 *
 		 * @return bool
+		 * @deprecated 4.1.2
 		 */
 		private function _is_old_meta( $key ) {
 			$old_meta = array(
@@ -748,7 +831,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 				/* question */
 				'_lpr_question',
 				'_lpr_question_mark',
-				'_lpr_duration'
+				'_lpr_duration',
 			);
 
 			return in_array( $key, $old_meta );
