@@ -3,7 +3,7 @@ Contributors: thimpress, tunnhn, kendy73, leehld
 Donate link:
 Tags: learnpress, e-learning, learning management system, import/export
 Tested up to: 6.9
-Stable tag: 4.1.2
+Stable tag: 4.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,83 +13,37 @@ LearnPress Export/Import bring you feature to export course, lesson, quiz, quest
 
 **LearnPress** is a <a href="http://thimpress.com/learnpress">WordPress LMS Plugin</a> by ThimPress.
 
-The LearnPress Export/Import plugin is a crucial plugin for users of the LearnPress WordPress LMS plugin, designed to streamline the management of course content and data.
+The **LearnPress – Backup & Migration Tool** is a **crucial add-on (or extension)** for users of the LearnPress WordPress LMS plugin, designed to streamline the management of course content and data.
 
-It addresses the common need to back up, migrate, or duplicate LearnPress courses and related elements.
+It addresses the common need to back up, migrate, or duplicate LearnPress courses, **as well as providing a seamless one-click migration from other popular LMS platforms like TutorLMS and LearnDash into LearnPress.**
 
-**LearnPress Export/Import’s Core Functionality:**
+## LearnPress Backup & Import/Export Functionality
 
-***Course Export:***
+* Selective Export/Import: Depending on the specific add-on version, there might be options to selectively export or import certain aspects of a course, rather than the entire course. This could mean exporting only quizzes, or lessons, for example.
 
-- Allows users to export entire courses, including all data and content: lessons, quizzes, assignments), settings, curriculum, and metadata.
-- The export typically generates a file (often in JSON or a custom format) that stores all the course information.
+## LearnPress Migration Functionality – Effortless LMS Migration Tool
 
-***Course Import:***
+The **most powerful** feature addition to **this add-on** is a streamlined, one-click migration tool for facilitating seamless transitions from other LMS systems to LearnPress. This feature helps users looking to switch LMS platforms while preserving their valuable course content, student data, and instructor information.
 
-- Enables users to import courses from previously exported files.
-- Allow transferring courses between different LearnPress installations or the restoration of backed-up courses.
-- The import process recreates the course structure and content within the target LearnPress environment.
+### Currently, our migration tool supports converting data from the following platforms to LearnPress:
 
-***Data Migration:***
+* **TutorLMS**
+* **LearnDash**
+* **MasterStudy (Developing - Coming soon!)**
 
-- Simplifies the migration of course data when moving a LearnPress site to a new server or domain.
-- Eliminates the need for manual data transfer.
+Here’s a detailed breakdown of the migration tool’s functions and benefits:
 
-***Backup and Restore:***
+### Main Functionality:
+* **Automated Data Transfer**: The tool automates the complex process of transferring data from **supported LMS platforms (like TutorLMS or LearnDash)** to LearnPress. This eliminates the need for manual data entry or complex database manipulation, saving time and effort.
 
-- Provides a reliable method for backing up LearnPress courses, ensuring data security and recovery in case of system failures or accidental removals.
-- The import function allows restoring these backups.
+* **Data Mapping**: In cases where data structures are different between **other LMSs** and LearnPress, the tool intelligently maps data fields to ensure accurate transfer.
 
-***Duplication:***
+### Benefits for Users:
+* **Cost Effective**: By automating a complex process, this add-on saves the user from paying developers for the migration process. Moreover, this plugin is free to download as well!
 
-- Facilitates the creation of duplicate courses, which is useful for creating templates or variations of existing courses.
-- This can save a lot of time for course creators.
-
-***Selective Export/Import:***
-
-- Depending on the specific plugin version, there might be options to selectively export or import certain aspects of a course, rather than the entire course. This could mean exporting only quizzes, or lessons, for example.
-
-== LearnPress Migration Functionality - Latest Function Assisting LMS Migration ==
-
-The latest major feature addition to the LearnPress Export Import plugin is a streamlined, one-click migration tool for facilitating seamless transitions from other LMS systems to LearnPress. This feature will help users looking to switch LMS platforms while preserving their valuable course content, student data, and instructor information. For now, you can only convert from TutorLMS to LearnPress but our team will update more platforms in the future!
-
-Here's a detailed breakdown of the migration tool's functions and benefits:
-
-***Main Functionality:***
-
-- Automated Data Transfer: The tool automates the complex process of transferring data from any LMS to LearnPress, such as TutorLMS.1 This eliminates the need for manual data entry or complex database manipulation, saving time and effort.
-- One-Click Process: The migration process is initiated with a single click, making it super user-friendly, even for those with limited or no technical knowledge.
-- Comprehensive Data Migration: The tool handles the migration of various crucial data points, including:
-
-1. Courses: All course content, including titles, descriptions, curriculum (lessons, quizzes, assignments), featured images, and course settings, are transferred accurately.
-2. Lessons: Lesson content, including text, images, videos, and attachments, is migrated seamlessly.
-3. Quizzes: Questions, answers, and score settings are transferred, preserving the integrity of assessments.
-4. Assignments: Assignment submissions and grading data are migrated, ensuring continuity of student progress.
-5. Students: Student profiles, course enrollments, and progress data are transferred, maintaining student records.
-6. Instructors: Instructor profiles and course assignments are migrated, ensuring instructors retain their roles.
-7. Course Categories and Tags: Course categories and tags are preserved, maintaining course organization.
-8. Media files: Media files related to the lessons, courses, and quizzes will also be transferred.
-
-- Progress Tracking: The plugin provides real-time progress tracking during migration, allowing users to view the process and identify potential issues.
-- Data Mapping: In cases where data structures are different between LMSs and LearnPress, the tool intelligently maps data fields to ensure accurate transfer.
-
-***Benefits for Users:***
-
-- Reduced Migration Time: The one-click automation significantly reduces the time required for migration, allowing users to switch platforms quickly and efficiently.
-- Minimized Data Loss: The comprehensive data transfer reduces the risk of data loss.
-- Simple Migration Process: The user-friendly interface and automatic process make migration accessible to users of all technical skill levels.
-- Improved Accuracy: Automated data mapping and error handling ensure accurate data transfer, reducing the risk of errors.
-- Enhanced Flexibility: The migration tool provides users with greater flexibility in choosing their preferred LMS platform.
-- Cost Effective: By automating a complex process, this plugin saves the user from paying developers for the migration process. Moreover, this plugin is free to download as well!
-- Maintains learning continuity: Students can pick up where they left off since the process is also migrated.
-- Old LMS Data Preservation: Our migration feature will maintain the data of your previous LMS plugins, even if you restore the migration data.
-
-***Technical considerations:***
-
-- The plugin requires both LearnPress and other LMS systems to be installed and activated on your WordPress site.
-- It is recommended to back up the website before starting the migration process.
-- The migration time may vary depending on the size and complexity of the transferred data.
-- You should have a stable hosting environment during the migration process.
+## Technical considerations
+* The **add-on** requires both LearnPress and **the other LMS system you are migrating from** to be installed and activated on your WordPress site.
+It is **highly** recommended to back up the website before starting the migration process.
 
 **Other free add-ons for LearnPress are available in WordPress:**
 
@@ -127,6 +81,9 @@ Check out <a href="http://docs.thimpress.com/learnpress" target="_blank">LearnPr
 1. LearnPress Export Import screenshot.
 
 == Changelog ==
+
+= 4.1.3 (2026-03-11) =
+~ Fixed: security.
 
 = 4.1.2 (2026-02-24) =
 ~ Fixed: minor bugs.

@@ -26,6 +26,8 @@ $current_tab = lpie_get_current_tab();
         <!--include import or export setting page-->
 		<?php
 		$path_tab = dirname( __FILE__ ) . "/{$current_tab}.php";
+		// Remove any '..' from the path to prevent directory traversal attacks
+		$path_tab = preg_replace( '/\.\.+/', '', $path_tab );
 		if ( realpath( $path_tab ) ) {
 			include $path_tab;
 		}

@@ -78,12 +78,12 @@ class Template {
 		$default_path        = LP_ADDON_IMPORT_EXPORT_VIEWS . "frontend/{$file_name}";
 		$folder_name_rewrite = apply_filters( 'learnpress-import-export/filter/template/frontend/folder-name-override', LP_ADDON_IMPORT_EXPORT_FOLDER_ROOT_NAME );
 
-		$from_theme_path = get_template_directory() . DIRECTORY_SEPARATOR . $folder_name_rewrite . DIRECTORY_SEPARATOR . $file_name;
+		$from_theme_path       = get_template_directory() . DIRECTORY_SEPARATOR . $folder_name_rewrite . DIRECTORY_SEPARATOR . $file_name;
 		$from_child_theme_path = get_stylesheet_directory() . DIRECTORY_SEPARATOR . $folder_name_rewrite . DIRECTORY_SEPARATOR . $file_name;
 
-		if (file_exists($from_child_theme_path)) {
+		if ( file_exists( $from_child_theme_path ) ) {
 			$path_load = $from_child_theme_path;
-		} elseif (file_exists($from_theme_path)) {
+		} elseif ( file_exists( $from_theme_path ) ) {
 			$path_load = $from_theme_path;
 		} else {
 			$path_load = $default_path;
@@ -168,6 +168,8 @@ class Template {
 		extract( $args, EXTR_SKIP );
 
 		if ( file_exists( $path_file ) && realpath( $path_file ) ) {
+			$path_file = preg_replace( '/\.\.+/', '', $path_file );
+
 			if ( $this->include ) {
 				include $path_file;
 			} else {

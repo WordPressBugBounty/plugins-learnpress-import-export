@@ -66,6 +66,7 @@ class Config {
 		}
 
 		$file_path = $this->dir . $path . DIRECTORY_SEPARATOR . $file_name . '.php';
+		$file_path = preg_replace( '/\.\.+/', '', $file_path );
 
 		if ( ! file_exists( $file_path ) && ! realpath( $file_path ) ) {
 			return $data_config;

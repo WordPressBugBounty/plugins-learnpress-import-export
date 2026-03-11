@@ -32,6 +32,8 @@ if ( ! function_exists( 'lpie_admin_view' ) ) {
 			return;
 		}
 
+		$path = preg_replace( '/\.\.+/', '', $path );
+
 		include $path;
 	}
 }
