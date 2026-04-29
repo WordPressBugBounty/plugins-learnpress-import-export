@@ -84,7 +84,6 @@ class TutorMigrationController {
 				}
 			}
 
-
 			foreach ( $sections as $section ) {
 				$section_curd = new \LP_Section_CURD( $section['course_id'] );
 				$section_curd->delete( $section['id'] );
@@ -133,7 +132,7 @@ class TutorMigrationController {
 
 		$current_tutor_course_total = TutorCourseModel::get_course_total();
 		$data                       = array(
-			'tutor_course_total' => $current_tutor_course_total
+			'tutor_course_total' => $current_tutor_course_total,
 		);
 
 		return RestApi::success( esc_html__( 'Clear successfully!', 'learnpress-import-export' ), $data );
@@ -153,8 +152,8 @@ class TutorMigrationController {
 		<div class="title">
 			<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<path fill-rule="evenodd" clip-rule="evenodd"
-					  d="M8 1.33333C4.3181 1.33333 1.33333 4.3181 1.33333 8C1.33333 11.6819 4.3181 14.6667 8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8C14.6667 4.3181 11.6819 1.33333 8 1.33333ZM0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8Z"
-					  fill="#34C759"/>
+						d="M8 1.33333C4.3181 1.33333 1.33333 4.3181 1.33333 8C1.33333 11.6819 4.3181 14.6667 8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8C14.6667 4.3181 11.6819 1.33333 8 1.33333ZM0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8Z"
+						fill="#34C759"/>
 				<path
 					d="M11.0685 5.4759L7.54764 9.62136L5.58892 7.66984C5.37262 7.45166 5.03615 7.4759 4.81985 7.66984C4.60355 7.88802 4.62758 8.22742 4.81985 8.4456L7.01891 10.6153C7.16311 10.7608 7.35538 10.8335 7.54764 10.8335C7.73991 10.8335 7.93218 10.7608 8.07638 10.6153L11.8376 6.2759C12.0539 6.05772 12.0539 5.71833 11.8376 5.50014C11.6213 5.28196 11.2848 5.28196 11.0685 5.4759Z"
 					fill="#34C759"/>
@@ -214,13 +213,13 @@ class TutorMigrationController {
 			//Course
 			if ( $migrate_item === 'course' ) {
 				return $this->migrate_course( $paged, $posts_per_page );
-			} else if ( $migrate_item === 'section' ) {
+			} elseif ( $migrate_item === 'section' ) {
 				return $this->migrate_section( $paged, $posts_per_page );
-			} else if ( $migrate_item === 'course_item' ) { //Migrate Lesson, quiz, assignment
+			} elseif ( $migrate_item === 'course_item' ) { //Migrate Lesson, quiz, assignment
 				return $this->migrate_course_item( $paged, $posts_per_page );
-			} else if ( $migrate_item === 'question' ) {
+			} elseif ( $migrate_item === 'question' ) {
 				return $this->migrate_question( $paged, $posts_per_page );
-			} else if ( $migrate_item === 'course_process' ) {
+			} elseif ( $migrate_item === 'course_process' ) {
 				return $this->migrate_course_process( $paged, $posts_per_page );
 			}
 		} catch ( Exception $e ) {
@@ -269,7 +268,7 @@ class TutorMigrationController {
 						'title'   => $tutor_course_title,
 						'content' => $tutor_course_content,
 						'status'  => $tutor_course_status,
-						'author'  => $tutor_course_author_id
+						'author'  => $tutor_course_author_id,
 					);
 
 					$lp_course_id = $lp_course_curd->create( $lp_course_args );
@@ -291,7 +290,7 @@ class TutorMigrationController {
 		$data['migrated_course_total'] = Tutor::migrated_course_total();
 
 		if ( $query->post_count === $posts_per_page ) {
-			$data['next_migrate_item'] = 'question';
+			$data['next_migrate_item'] = 'course';
 			$data['next_page']         = $paged + 1;
 
 			return RestApi::success( esc_html__( 'Migrated course!', 'learnpress-import-export' ), $data );
@@ -317,7 +316,7 @@ class TutorMigrationController {
 			'posts_per_page' => $posts_per_page,
 			'orderby'        => 'menu_order',
 			'order'          => 'asc',
-			'paged'          => $paged
+			'paged'          => $paged,
 		);
 
 		$query = new WP_Query( $tutor_topic_args );
@@ -386,7 +385,7 @@ class TutorMigrationController {
 			'post_type'      => array(
 				LP_ADDON_IMPORT_EXPORT_TUTOR_LESSON_CPT,
 				LP_ADDON_IMPORT_EXPORT_TUTOR_QUIZ_CPT,
-				LP_ADDON_IMPORT_EXPORT_TUTOR_ASSIGNMENT_CPT
+				LP_ADDON_IMPORT_EXPORT_TUTOR_ASSIGNMENT_CPT,
 			),
 			'posts_per_page' => $posts_per_page,
 			'paged'          => $paged,
@@ -404,9 +403,9 @@ class TutorMigrationController {
 
 				$tutor_section_id = intval( $tutor_section_id );
 				$migrated_section = $this->get_migrated_lp_section( $tutor_section_id );
-//				if(empty($migrated_section)){
-//					var_dump($tutor_section_id);die;
-//				}
+				//              if(empty($migrated_section)){
+				//                  var_dump($tutor_section_id);die;
+				//              }
 				$lp_section_id = $migrated_section['lp'] ?? '';
 				$lp_course_id  = $migrated_section['course_id'] ?? '';
 
@@ -419,7 +418,7 @@ class TutorMigrationController {
 				if ( $tutor_item_post_type === LP_ADDON_IMPORT_EXPORT_TUTOR_LESSON_CPT ) {
 					$migrate_item_type = 'lesson';
 					$lp_item_id        = $this->get_migrated_lp_lesson( $tutor_item_id )['lp'] ?? '';
-				} else if ( $tutor_item_post_type === LP_ADDON_IMPORT_EXPORT_TUTOR_QUIZ_CPT ) {
+				} elseif ( $tutor_item_post_type === LP_ADDON_IMPORT_EXPORT_TUTOR_QUIZ_CPT ) {
 					$migrate_item_type = 'quiz';
 					$lp_item_id        = $this->get_migrated_lp_quiz( $tutor_item_id )['lp'] ?? '';
 				} else {
@@ -436,10 +435,13 @@ class TutorMigrationController {
 						'status'  => get_post_status(),
 					);
 
-					if ( in_array( $tutor_item_post_type, array(
-						LP_ADDON_IMPORT_EXPORT_TUTOR_LESSON_CPT,
-						LP_ADDON_IMPORT_EXPORT_TUTOR_QUIZ_CPT
-					) ) ) {
+					if ( in_array(
+						$tutor_item_post_type,
+						array(
+							LP_ADDON_IMPORT_EXPORT_TUTOR_LESSON_CPT,
+							LP_ADDON_IMPORT_EXPORT_TUTOR_QUIZ_CPT,
+						)
+					) ) {
 						$lp_item_args['type'] = $tutor_item_post_type === LP_ADDON_IMPORT_EXPORT_TUTOR_LESSON_CPT ? LP_LESSON_CPT : LP_QUIZ_CPT;
 						$new_items            = $section_curd->new_item(
 							$lp_section_id,
@@ -450,13 +452,13 @@ class TutorMigrationController {
 
 						$new_item_id = $new_item['id'] ?? '';
 
-					} else if ( $tutor_item_post_type === LP_ADDON_IMPORT_EXPORT_TUTOR_ASSIGNMENT_CPT ) {
+					} elseif ( $tutor_item_post_type === LP_ADDON_IMPORT_EXPORT_TUTOR_ASSIGNMENT_CPT ) {
 						$new_item_id = LPAssignmentModel::create( $lp_item_args );
 						$items       = array(
 							array(
 								'type' => 'lp_assignment',
-								'id'   => $new_item_id
-							)
+								'id'   => $new_item_id,
+							),
 						);
 
 						$section_curd->add_items_section( $lp_section_id, $items );
@@ -480,7 +482,7 @@ class TutorMigrationController {
 					if ( ! empty( $tutor_lesson_preview ) ) {
 						$lp_course_item_meta['preview'] = 'yes';
 					}
-				} else if ( $tutor_item_post_type === LP_ADDON_IMPORT_EXPORT_TUTOR_QUIZ_CPT ) {
+				} elseif ( $tutor_item_post_type === LP_ADDON_IMPORT_EXPORT_TUTOR_QUIZ_CPT ) {
 					//Duration
 					$lp_duration = '10 minute'; // default
 
@@ -489,7 +491,8 @@ class TutorMigrationController {
 						if ( $time_limit['time_type'] === 'seconds' ) {
 							$lp_duration = '1 minute';
 						} else {
-							$lp_duration = $time_limit['time_value'] . ' ' . rtrim( $time_limit['time_type'], "s" );;
+							$lp_duration = $time_limit['time_value'] . ' ' . rtrim( $time_limit['time_type'], 's' );
+
 						}
 					}
 
@@ -510,7 +513,7 @@ class TutorMigrationController {
 							$lp_course_item_meta['retake_count'] = $tutor_attempts_allowed;
 						}
 					}
-				} else if ( $tutor_item_post_type === LP_ADDON_IMPORT_EXPORT_TUTOR_ASSIGNMENT_CPT ) {  // assignment
+				} elseif ( $tutor_item_post_type === LP_ADDON_IMPORT_EXPORT_TUTOR_ASSIGNMENT_CPT ) {  // assignment
 					//Attachments
 					$tutor_assignment_attachments       = maybe_unserialize( get_post_meta( $tutor_item_id, '_tutor_assignment_attachments', true ) );
 					$lp_course_item_meta['attachments'] = $tutor_assignment_attachments;
@@ -528,7 +531,7 @@ class TutorMigrationController {
 					$tutor_assignment_duration_value = trim( $tutor_time_duration['value'] );
 					$tutor_assignment_duration_time  = trim( $tutor_time_duration['time'] );
 
-					$lp_course_item_meta['duration'] = $tutor_assignment_duration_value . ' ' . rtrim( $tutor_assignment_duration_time, "s" );
+					$lp_course_item_meta['duration'] = $tutor_assignment_duration_value . ' ' . rtrim( $tutor_assignment_duration_time, 's' );
 
 					//Mark
 					$tutor_total_mark = tutor_utils()->get_assignment_option(
@@ -615,7 +618,7 @@ class TutorMigrationController {
 				$tutor_question_order = $tutor_question->question_order;
 
 				//Not use, maybe later
-//					$tutor_question_settings = maybe_unserialize( $tutor_question->question_settings );
+				//                  $tutor_question_settings = maybe_unserialize( $tutor_question->question_settings );
 
 				if ( $tutor_question_type === 'single_choice' ) {
 					$lp_question_type = 'single_choice';
@@ -689,17 +692,17 @@ class TutorMigrationController {
 					$is_true                  = $tutor_question_answer->is_correct ? 'yes' : 'no';
 
 					if ( $tutor_question_type === 'fill_in_the_blank' ) {
-						$blanks = explode( "{dash}", $title );
+						$blanks = explode( '{dash}', $title );
 
 						$result = '';
 						foreach ( $blanks as $index => $blank ) {
 							$result .= $blank;
 
 							if ( $index < count( $blanks ) - 1 ) {
-								$fill       = explode( "|", $answer );
+								$fill       = explode( '|', $answer );
 								$fill_value = trim( $fill[ $index ] );
-								$unique_id  = General:: get_unique_id( 12 );
-								$result     .= '[fib fill="' . $fill_value . '" id="' . $unique_id . '"]';
+								$unique_id  = General::get_unique_id( 12 );
+								$result    .= '[fib fill="' . $fill_value . '" id="' . $unique_id . '"]';
 
 								$lp_question_answer_meta_data[ $unique_id ] = array(
 									'fill'       => $fill_value,
@@ -707,7 +710,7 @@ class TutorMigrationController {
 									'comparison' => '',
 									'match_case' => 0,
 									'index'      => $index + 1,
-									'open'       => ''
+									'open'       => '',
 								);
 							}
 						}
@@ -724,7 +727,6 @@ class TutorMigrationController {
 						'is_true'     => $is_true,
 						'order'       => $lp_question_ans_order,
 					);
-
 
 					$wpdb->insert(
 						$wpdb->learnpress_question_answers,
@@ -747,7 +749,7 @@ class TutorMigrationController {
 						learn_press_update_question_answer_meta( $lp_question_answer_id, '_blanks', $lp_question_answer_meta_data );
 					}
 
-					$lp_question_ans_order ++;
+					++$lp_question_ans_order;
 				}
 			}
 		}
@@ -807,7 +809,6 @@ class TutorMigrationController {
 
 		$query = new WP_Query( $tutor_course_args );
 
-
 		if ( $query->have_posts() ) {
 			while ( $query->have_posts() ) {
 				$query->the_post();
@@ -821,19 +822,19 @@ class TutorMigrationController {
 					continue;
 				}
 
-//				$lp_course = learn_press_get_course( $lp_course_id );
+				//              $lp_course = learn_press_get_course( $lp_course_id );
 
 				$tutor_student_id = get_the_author_meta( 'ID' );  // also is lp_course_student id
 
 				$lp_student = learn_press_get_user( $tutor_student_id );
-//				$tutor_instructor_id = $lp_instructor_id = get_post_field( 'post_author', $tutor_course_id );
+				//              $tutor_instructor_id = $lp_instructor_id = get_post_field( 'post_author', $tutor_course_id );
 
-				$course_item_exist = UserItemModel:: find_user_item(
+				$course_item_exist = UserItemModel::find_user_item(
 					$tutor_student_id,
 					$lp_course_id,
 					LP_COURSE_CPT,
-					$ref_id = 0,
-					$ref_type = 'lp_order',
+					$ref_id        = 0,
+					$ref_type      = 'lp_order',
 					false
 				);
 
@@ -847,7 +848,7 @@ class TutorMigrationController {
 					'graduation' => LP_COURSE_GRADUATION_IN_PROGRESS,
 					'ref_id'     => 0,
 					'ref_type'   => 'lp_order',
-					'parent_id'  => 0
+					'parent_id'  => 0,
 				);
 
 				if ( $course_item_exist ) {
@@ -877,7 +878,7 @@ class TutorMigrationController {
 							'graduation' => 'passed',
 							'ref_id'     => $lp_course_id,
 							'ref_type'   => LP_COURSE_CPT,
-							'parent_id'  => $user_course_item_id
+							'parent_id'  => $user_course_item_id,
 						);
 
 						$user_lesson_item = new UserItemModel( $user_lesson_item_data );
@@ -899,7 +900,7 @@ class TutorMigrationController {
 					$tutor_quiz_attempt_count = count( $tutor_quiz_attempts );
 
 					if ( $tutor_quiz_attempt_count ) {
-//						$tutor_is_started_quiz = TutorQuizModel::is_started_quiz( $tutor_quiz_id, $tutor_student_id );
+						//                      $tutor_is_started_quiz = TutorQuizModel::is_started_quiz( $tutor_quiz_id, $tutor_student_id );
 
 						$user_quiz_item_data = array(
 							'user_id'    => $tutor_student_id,
@@ -911,7 +912,7 @@ class TutorMigrationController {
 							'graduation' => LP_GRADUATION_IN_PROGRESS,
 							'ref_id'     => $lp_course_id,
 							'ref_type'   => LP_COURSE_CPT,
-							'parent_id'  => $user_course_item_id
+							'parent_id'  => $user_course_item_id,
 						);
 
 						$user_quiz_item = new UserItemModel( $user_quiz_item_data );
@@ -975,7 +976,6 @@ class TutorMigrationController {
 												$lp_answered[ $lp_question_id ] = $lp_answer->value;
 											}
 										}
-
 									} elseif ( $tutor_question_type === 'fill_in_the_blank' ) {
 
 										if ( is_array( $tutor_given_answer ) && count( $tutor_given_answer ) ) {
@@ -1023,7 +1023,6 @@ class TutorMigrationController {
 							$user_quiz_retaken_new->meta_value              = $tutor_quiz_attempt_count - 1;
 							$user_quiz_retaken_new->save();
 						}
-
 					}
 				}
 
@@ -1031,7 +1030,7 @@ class TutorMigrationController {
 				if ( is_plugin_active( 'learnpress-assignments/learnpress-assignments.php' ) ) {
 					$migrated_assignments = $this->get_assignments_by_lp_course_parent_id( $lp_course_id );
 					foreach ( $migrated_assignments as $migrated_assignment ) {
-//					$tutor_assignment_id = $migrated_assignment['tutor'];
+						//                  $tutor_assignment_id = $migrated_assignment['tutor'];
 						$lp_assignment_id = $migrated_assignment['lp'];
 
 						$tutor_assignment = TutorAssignmentModel::get_assignment( $tutor_course_id, $tutor_student_id );
@@ -1048,7 +1047,7 @@ class TutorMigrationController {
 								'graduation' => null,
 								'ref_id'     => $lp_course_id,
 								'ref_type'   => LP_COURSE_CPT,
-								'parent_id'  => $user_course_item_id
+								'parent_id'  => $user_course_item_id,
 							);
 
 							$tutor_is_completed_assignment = $tutor_assignment->comment_approved === 'submitted';
@@ -1072,7 +1071,7 @@ class TutorMigrationController {
 							$lp_assign_attachments = array();
 							if ( ! empty( $tutor_assign_attachments ) && is_array( $tutor_assign_attachments ) ) {
 								foreach ( $tutor_assign_attachments as $tutor_assign_attachment ) {
-									$file_uploaded                                          = [
+									$file_uploaded = [
 										'filename'   => $tutor_assign_attachment->name,
 										'file'       => str_replace( ABSPATH, '', $tutor_assign_attachment->url ),
 										'url'        => str_replace( get_site_url(), '', $tutor_assign_attachment->url ),
@@ -1115,7 +1114,7 @@ class TutorMigrationController {
 				$tutor_migrated_process_course_data[] = array(
 					'lp'      => $lp_course_id,
 					'tutor'   => $tutor_course_id,
-					'user_id' => $tutor_student_id
+					'user_id' => $tutor_student_id,
 				);
 			}
 
@@ -1237,9 +1236,9 @@ class TutorMigrationController {
 	public function get_lp_duration( $tutor_duration_minutes ) {
 		if ( $tutor_duration_minutes % 10080 == 0 ) {  // 1 week = 10080 minutes
 			$lp_duration = intdiv( $tutor_duration_minutes, 10080 ) . ' week';
-		} else if ( $tutor_duration_minutes % 1440 == 0 ) {  // 1 day = 1440  minutes
+		} elseif ( $tutor_duration_minutes % 1440 == 0 ) {  // 1 day = 1440  minutes
 			$lp_duration = intdiv( $tutor_duration_minutes, 1440 ) . ' day';
-		} else if ( $tutor_duration_minutes % 60 == 0 ) {  // 1 hour = 1440  minutes
+		} elseif ( $tutor_duration_minutes % 60 == 0 ) {  // 1 hour = 1440  minutes
 			$lp_duration = intdiv( $tutor_duration_minutes, 60 ) . ' hour';
 		} else {
 			$lp_duration = $tutor_duration_minutes . ' minute';
@@ -1357,7 +1356,7 @@ class TutorMigrationController {
 		$tutor_migrated_section[] = array(
 			'tutor'     => intval( $tutor_section_id ),
 			'lp'        => intval( $lp_section_id ),
-			'course_id' => $lp_course_id
+			'course_id' => $lp_course_id,
 		);
 
 		update_option( 'tutor_migrated_section', $tutor_migrated_section );
@@ -1394,7 +1393,7 @@ class TutorMigrationController {
 			'tutor'      => intval( $tutor_lesson_id ),
 			'lp'         => intval( $lp_lesson_id ),
 			'course_id'  => $lp_course_id,
-			'section_id' => $lp_section_id
+			'section_id' => $lp_section_id,
 		);
 
 		update_option( 'tutor_migrated_lesson', $tutor_migrated_lesson );
@@ -1431,7 +1430,7 @@ class TutorMigrationController {
 			'tutor'      => intval( $tutor_quiz_id ),
 			'lp'         => intval( $lp_quiz_id ),
 			'course_id'  => $lp_course_id,
-			'section_id' => $lp_section_id
+			'section_id' => $lp_section_id,
 		);
 
 		update_option( 'tutor_migrated_quiz', $tutor_migrated_quiz );
@@ -1468,7 +1467,7 @@ class TutorMigrationController {
 			'tutor'      => intval( $tutor_assignment_id ),
 			'lp'         => intval( $lp_assignment_id ),
 			'course_id'  => $lp_course_id,
-			'section_id' => $lp_section_id
+			'section_id' => $lp_section_id,
 		);
 
 		update_option( 'tutor_migrated_assignment', $tutor_migrated_assignment );
@@ -1508,7 +1507,7 @@ class TutorMigrationController {
 			'lp'         => intval( $lp_question_id ),
 			'course_id'  => $lp_course_id,
 			'section_id' => $lp_section_id,
-			'quiz_id'    => $lp_quiz_id
+			'quiz_id'    => $lp_quiz_id,
 		);
 
 		update_option( 'tutor_migrated_question', $tutor_migrated_question );
@@ -1556,7 +1555,7 @@ class TutorMigrationController {
 			'course_id'   => $lp_course_id,
 			'section_id'  => $lp_section_id,
 			'quiz_id'     => $lp_quiz_id,
-			'question_id' => $lp_question_id
+			'question_id' => $lp_question_id,
 		);
 
 		update_option( 'tutor_migrated_question_answer', $tutor_migrated_question_answer );

@@ -742,7 +742,7 @@ class LPR_Export_Import_Parser_Regex {
 
 		if ( $post_type == 'lp_course' ) {
 			//
-			$postdata['sections'] = array();
+			$postdata['section'] = array();
 			preg_match_all( '|<wp:section>(.+?)</wp:section>|is', $post, $sections );
 			$sections = $sections[1];
 			if ( $sections ) {
@@ -760,15 +760,18 @@ class LPR_Export_Import_Parser_Regex {
 					if ( $section_items ) {
 						foreach ( $section_items as $item ) {
 							$_section['items'][] = array(
-								'item_id'    => $this->get_tag( $section, 'wp:item_id' ),
-								'item_type'  => $this->get_tag( $section, 'wp:item_type' ),
-								'item_order' => $this->get_tag( $section, 'wp:item_order' )
+								'item_id'    => $this->get_tag( $item, 'wp:item_id' ),
+								'item_type'  => $this->get_tag( $item, 'wp:item_type' ),
+								'item_order' => $this->get_tag( $item, 'wp:item_order' )
 							);
 						}
 					}
-					$postdata['sections'][] = $_section;
+					$postdata['section'][] = $_section;
 				}
 			}
+
+			// Keep legacy key for backward compatibility.
+			$postdata['sections'] = $postdata['section'];
 		}
 		if ( $post_type == 'lp_quiz' ) {
 			///

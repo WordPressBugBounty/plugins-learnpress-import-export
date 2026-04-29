@@ -4,6 +4,7 @@ namespace LPImportExport\Migration\Controllers;
 
 use LPImportExport\Migration\Helpers\Config;
 use LPImportExport\Migration\Helpers\General;
+use LPImportExport\Migration\Helpers\MasterStudy;
 use LPImportExport\Migration\Helpers\Page;
 use LPImportExport\Migration\Helpers\Template;
 use LPImportExport\Migration\Helpers\Tutor;
@@ -57,6 +58,8 @@ class AdminMenuController {
 				$data = array_merge( $data, Tutor::get_data() );
 			} elseif ( $current_plugin['name'] === 'learndash' ) {
 				$data = array_merge( $data, \LPImportExport\LearnDashMigration\LearnDashHelper::get_data() );
+			}elseif($current_plugin['name'] === 'master_study'){
+				$data = array_merge( $data, MasterStudy::get_data() );
 			}
 		}
 

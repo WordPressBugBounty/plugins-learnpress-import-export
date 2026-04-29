@@ -27,6 +27,13 @@ return apply_filters(
 						LP_ADDON_IMPORT_EXPORT_MIGRATION_PAGE,
 					),
 				),
+				'lp-migration-master-study'       => array(
+					'src'  => $source_asset->get_asset_admin_file_url( 'js', 'lp-migration-master-study' ),
+					'deps' => array( 'wp-api-fetch' ),
+					'screens'   => array(
+						LP_ADDON_IMPORT_EXPORT_MIGRATION_PAGE,
+					),
+				)
 			)
 		),
 		'frontend' => array(

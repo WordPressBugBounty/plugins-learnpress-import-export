@@ -3,7 +3,7 @@ Contributors: thimpress, tunnhn, kendy73, leehld
 Donate link:
 Tags: learnpress, e-learning, learning management system, import/export
 Tested up to: 6.9
-Stable tag: 4.1.3
+Stable tag: 4.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,10 @@ Check out <a href="http://docs.thimpress.com/learnpress" target="_blank">LearnPr
 
 == Changelog ==
 
+= 4.1.4 (2026-04-29) =
+~ Fixed: error item's course not assigned to course.
+~ Added: feature migrate data from MasterStudy to LearnPress.
+
 = 4.1.3 (2026-03-11) =
 ~ Fixed: security.
 
@@ -89,7 +93,7 @@ Check out <a href="http://docs.thimpress.com/learnpress" target="_blank">LearnPr
 ~ Fixed: minor bugs.
 
 = 4.1.1 (2026-02-11) =
-~ Added: feature migrate data from LearnDash.
+~ Added: feature migrate data from LearnDash to LearnPress.
 ~ Fixed: minor bugs.
 ~ Fixed: security.
 
@@ -107,7 +111,7 @@ Check out <a href="http://docs.thimpress.com/learnpress" target="_blank">LearnPr
 ~ Fixed: minor bugs.
 
 = 4.0.6 (2025-02-18) =
-~ Added: feature migrate data from TutorLMS.
+~ Added: feature migrate data from TutorLMS to LearnPress.
 
 = 4.0.5 (2024-11-12) =
 ~ Fixed: security.

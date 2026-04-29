@@ -8,9 +8,7 @@
  */
 
 // Prevent loading this file directly
-use LearnPress\Models\CourseModel;
 use LearnPress\Models\CoursePostModel;
-
 defined( 'ABSPATH' ) || exit;
 
 // Load Importer API
@@ -70,6 +68,10 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 		private $posts_duplication = array();
 
 		/**
+		 * @var array
+		 */
+		private $import_warnings = array();
+		/**
 		 * LP_Import_LearnPress_Provider constructor.
 		 */
 		public function __construct() {
@@ -110,9 +112,11 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 
 		/**
 		 * Import process.
+		 *
 		 * @throws Exception
 		 */
 		public function do_import() {
+
 			$import_file      = LP_Request::get_param( 'import-file' );
 			$path_import_file = realpath( lpie_root_path() . '/learnpress/' . $import_file );
 			if ( ! $path_import_file ) {
@@ -127,6 +131,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 				$authors = $file_data['authors'];
 				foreach ( $authors as $old_author ) {
 					if ( ! empty( $map_authors[ $old_author['author_id'] ] ) /* and user exists */ ) {
+						$this->processed_authors[ $old_author['author_id'] ] = intval( $map_authors[ $old_author['author_id'] ] );
 						continue;
 					}
 					if ( ! empty( $new_authors[ $old_author['author_id'] ] ) /* and user exists */ ) {
@@ -152,16 +157,21 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 						if ( ! empty( $old_author['author_id'] ) ) {
 							$this->processed_authors[ $old_author['author_id'] ] = $user_id;
 						}
-					} else {
-						if ( ! empty( $old_author['author_id'] ) ) {
+					} elseif ( ! empty( $old_author['author_id'] ) ) {
 							$this->processed_authors[ $old_author['author_id'] ] = (int) get_current_user_id();
-						}
 					}
 				}
 			}
 
 			if ( ! empty( $file_data['posts'] ) ) {
-				$posts = $file_data['posts'];
+				$posts   = $file_data['posts'];
+				$courses = array();
+
+				foreach ( $posts as &$post ) {
+					$this->normalize_course_sections( $post );
+				}
+				unset( $post );
+
 				// if have posts then import the categories and/or tags first
 				// if success, store the new ID of category/tag into an array to map the old ID with new ID
 				foreach ( $posts as $post ) {
@@ -180,45 +190,21 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 				$this->posts_count    = count( $posts );
 				$this->posts_imported = 0;
 
-				// Import all courses, lessons, quizzes, questions
+				// Phase 1: Import all posts first to have a complete old->new ID map.
 				foreach ( $posts as $post ) {
-					/*if ( $post['post_type'] == 'lp_course' ) {
-						$args = array(
-							'update_date'     => isset( $args['update_date'] ),
-							'check_duplicate' => isset( $args['check_duplicate'] ),
-						);
-					} else {
-						$args = array(
-							'update_date' => isset( $args['update_date'] ),
-						);
-					}*/
-
+					$this->process_post( $post );
 					if ( $post['post_type'] == LP_COURSE_CPT ) {
-						$this->process_course( $post );
-					} else {
-						$post_id = $this->process_post( $post );
-
-						switch ( $post['post_type'] ) {
-							case LP_QUIZ_CPT:
-								$this->process_quiz_questions( $post );
-								break;
-							case LP_QUESTION_CPT:
-								$this->process_question_answers( $post );
-								$this->process_question_answers_meta( $post );
-								break;
-						}
-
-						do_action( 'learn-press/import/process-type', $post, $this->processed_posts );
+						$courses[] = $post;
 					}
-				} //end foreach
+				}
 
-				// Import section
-				/*foreach ( $posts as $post ) {
+				// Phase 2: Import dependencies that rely on mapped posts.
+				foreach ( $posts as $post ) {
+					if ( $post['post_type'] == LP_COURSE_CPT ) {
+						continue;
+					}
+
 					switch ( $post['post_type'] ) {
-						case LP_COURSE_CPT:
-							$this->process_sections( $post );
-							$this->save_extra_course_data( $post );
-							break;
 						case LP_QUIZ_CPT:
 							$this->process_quiz_questions( $post );
 							break;
@@ -227,8 +213,20 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 							$this->process_question_answers_meta( $post );
 							break;
 					}
+
 					do_action( 'learn-press/import/process-type', $post, $this->processed_posts );
-				}*/
+				}
+
+				// Phase 3: Build course curriculum through LP Section models.
+				foreach ( $courses as $course ) {
+					$this->process_course( $course );
+					$this->save_extra_course_data( $course );
+					do_action( 'learn-press/import/process-type', $course, $this->processed_posts );
+				}
+
+				if ( ! empty( $this->import_warnings ) ) {
+					$GLOBALS['lpie_import_warnings'] = $this->import_warnings;
+				}
 			}
 
 			if ( ! empty( $_REQUEST['save_import'] ) ) {
@@ -249,11 +247,47 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 		 * @return array|WP_Error
 		 */
 		public function parse( $file ) {
+
 			$parser = new LPR_Export_Import_Parser();
 
 			return $parser->parse( $file );
 		}
 
+		/**
+		 * Normalize section key for parser compatibility.
+		 *
+		 * @param array $post
+		 *
+		 * @return void
+		 */
+		private function normalize_course_sections( array &$post ) {
+
+			if ( empty( $post ) || ( $post['post_type'] ?? '' ) !== LP_COURSE_CPT ) {
+				return;
+			}
+
+			if ( empty( $post['section'] ) && ! empty( $post['sections'] ) ) {
+				$post['section'] = $post['sections'];
+			}
+		}
+
+		/**
+		 * Write warning messages for skipped data.
+		 *
+		 * @param string $warning
+		 *
+		 * @return void
+		 */
+		private function add_import_warning( string $warning ) {
+
+			$this->import_warnings[] = $warning;
+
+			if ( class_exists( 'LP_Debug' ) ) {
+				LP_Debug::error_log( '[LP Import/Export] ' . $warning );
+			} else {
+				error_log( '[LP Import/Export] ' . $warning );
+			}
+		}
 		/**
 		 * @deprecated 4.1.2
 		 */
@@ -299,13 +333,11 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 				if ( is_array( $category_parent ) ) {
 					$category_parent = $category_parent['term_id'];
 				}
-			} else {
-				if ( ! empty( $cat['parent'] ) && $cat['parent'] > 0 ) {
-					foreach ( $post['terms'] as $t ) {
-						if ( $t['id'] == $cat['parent'] ) {
-							$category_parent = $this->process_category( $t, $post );
-							break;
-						}
+			} elseif ( ! empty( $cat['parent'] ) && $cat['parent'] > 0 ) {
+				foreach ( $post['terms'] as $t ) {
+					if ( $t['id'] == $cat['parent'] ) {
+						$category_parent = $this->process_category( $t, $post );
+						break;
 					}
 				}
 			}
@@ -452,7 +484,8 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 			);
 			$original_post_ID = $post['post_id'];
 			$post_id          = 0;
-			/*if ( $args['check_duplicate'] && ( $duplication_id = $this->_post_exists( array( 'post_name' => $post['post_name'] ) ) ) ) {
+			/*
+			if ( $args['check_duplicate'] && ( $duplication_id = $this->_post_exists( array( 'post_name' => $post['post_name'] ) ) ) ) {
 				$this->posts_duplication[] = $duplication_id;
 
 				return $post_id;
@@ -467,7 +500,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 			}
 
 			if ( 'nav_menu_item' == $post['post_type'] ) {
-				//$this->process_menu_item( $post );
+				// $this->process_menu_item( $post );
 				return $post_id;
 			}
 			$post_type_object = get_post_type_object( $post['post_type'] );
@@ -555,7 +588,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 				} // end foreach meta
 			}
 
-			//attachment
+			// attachment
 			if ( ! empty( $post['attachment'] ) ) {
 				$attachment = $post['attachment'];
 				$this->process_attachment( $attachment, $post_id );
@@ -570,58 +603,107 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 		 * @throws Exception
 		 */
 		public function process_course( $data ) {
-			// Create new course
-			$data['post_author'] = $data['post_author_id'] ?? 0;
-			$data['post_status'] = $data['status'] ?? $data['post_status'] ?? 0;
-			$coursePostModel     = new CoursePostModel( $data );
-			$coursePostModel->save();
+
+			$old_post_id = intval( $data['post_id'] ?? 0 );
+			$post_id     = ! empty( $this->processed_posts[ $old_post_id ] ) ? intval( $this->processed_posts[ $old_post_id ] ) : 0;
+			if ( ! $post_id ) {
+				$this->add_import_warning( sprintf( 'Skip course curriculum: missing mapped course ID for source #%d', $old_post_id ) );
+				return;
+			}
+
+			$coursePostModel = CoursePostModel::find( $post_id );
+			if ( ! $coursePostModel instanceof CoursePostModel ) {
+				$this->add_import_warning( sprintf( 'Skip course curriculum: cannot load destination course #%d', $post_id ) );
+				return;
+			}
 
 			// Create curriculum for course
-			$course_section = $data['section'] ?? [];
-			if ( ! empty( $course_section ) ) {
-				foreach ( $course_section as $section_order => $section ) {
-					$sectionNew = $coursePostModel->add_section( $section );
+			$course_section = $data['section'] ?? array();
+			if ( empty( $course_section ) && ! empty( $data['sections'] ) ) {
+				$course_section = $data['sections'];
+			}
 
-					$section_items = $section['items'] ?? [];
+			usort(
+				$course_section,
+				function ( $a, $b ) {
+
+					return intval( $a['section_order'] ?? 0 ) - intval( $b['section_order'] ?? 0 );
+				}
+			);
+
+			if ( ! empty( $course_section ) ) {
+				foreach ( $course_section as $section ) {
+					$section_name = trim( $section['section_name'] ?? '' );
+					if ( empty( $section_name ) ) {
+						$this->add_import_warning(
+							sprintf(
+								'Skip section in source course #%d: section_name is empty',
+								$old_post_id
+							)
+						);
+						continue;
+					}
+
+					try {
+						$sectionNew = $coursePostModel->add_section( $section );
+					} catch ( Throwable $e ) {
+						$this->add_import_warning(
+							sprintf(
+								'Skip section in source course #%d: %s',
+								$old_post_id,
+								$e->getMessage()
+							)
+						);
+						continue;
+					}
+
+					$section_items = $section['items'] ?? array();
 					usort(
 						$section_items,
 						function ( $a, $b ) {
 							return $a['item_order'] - $b['item_order'];
 						}
 					);
-					$section_items = array_map(
-						function ( $item ) {
-							return array(
-								'id'   => $item['item_id'] ?? 0,
-								'type' => $item['item_type'] ?? '',
-							);
-						},
-						$section_items
-					);
 
-					if ( ! empty( $section_items ) ) {
-						$section['items'] = $section_items;
-						$sectionNew->add_items( $section );
+					$mapped_items = array();
+					foreach ( $section_items as $item ) {
+						$old_item_id = intval( $item['item_id'] ?? 0 );
+						$new_item_id = ! empty( $this->processed_posts[ $old_item_id ] ) ? intval( $this->processed_posts[ $old_item_id ] ) : 0;
+						if ( ! $new_item_id ) {
+							$this->add_import_warning(
+								sprintf(
+									'Skip section item #%d in source course #%d: unresolved mapped ID',
+									$old_item_id,
+									$old_post_id
+								)
+							);
+							continue;
+						}
+
+						$item_type      = $item['item_type'] ?? get_post_type( $new_item_id );
+						$mapped_items[] = array(
+							'id'   => $new_item_id,
+							'type' => $item_type,
+						);
+					}
+
+					if ( ! empty( $mapped_items ) ) {
+						$section['items'] = $mapped_items;
+						try {
+							$sectionNew->add_items( $section );
+						} catch ( Throwable $e ) {
+							$this->add_import_warning(
+								sprintf(
+									'Skip adding mapped items for section in source course #%d: %s',
+									$old_post_id,
+									$e->getMessage()
+								)
+							);
+						}
 					}
 				}
 			}
-
-			// Save metadata for CourseModel, set price.
-			$courseModel = new CourseModel( $coursePostModel );
-			$data_meta   = $data['postmeta'] ?? [];
-			foreach ( $data_meta as $meta ) {
-				$meta_key   = $meta['key'] ?? '';
-				$meta_value = maybe_unserialize( $meta['value'] ?? '' );
-				if ( empty( $meta_key ) ) {
-					continue;
-				}
-				$coursePostModel->save_meta_value_by_key( $meta_key, $meta_value );
-				$courseModel->meta_data->{$meta_key} = $meta_value;
-			}
-			$courseModel->save();
-			$coursePostModel->save();
 		}
-
 		/**
 		 * Import course sections.
 		 *
@@ -790,7 +872,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 				$query .= " AND post_title = '%s' ";
 				$args[] = $post_title;
 			}
-			//echo $wpdb->prepare($query, $args);die();
+			// echo $wpdb->prepare($query, $args);die();
 			if ( ! empty( $args ) ) {
 				return $wpdb->get_var( $wpdb->prepare( $query, $args ) );
 			}

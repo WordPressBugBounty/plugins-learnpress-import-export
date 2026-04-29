@@ -16,7 +16,7 @@ $current_plugin = $data['current_plugin'];
 		</div>
 		<div class="action">
 			<a class="button go-to-dashboard"
-			   href="<?php echo add_query_arg( array( 'post_type' => LP_COURSE_CPT ), admin_url( 'edit.php' ) );?>"><?php esc_html_e( 'Go To Course Lists', 'learnpress-import-export' ); ?></a>
+				href="<?php echo add_query_arg( array( 'post_type' => LP_COURSE_CPT ), admin_url( 'edit.php' ) ); ?>"><?php esc_html_e( 'Go To Course Lists', 'learnpress-import-export' ); ?></a>
 			<a class="button view-report" href="#"><?php esc_html_e( 'View Report', 'learnpress-import-export' ); ?></a>
 		</div>
 	</div>

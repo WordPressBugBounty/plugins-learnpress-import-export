@@ -13,11 +13,11 @@ if ( $is_tutor_active ) {
 		'url'   => add_query_arg(
 			array(
 				'page' => 'lp-migration-tool',
-				'tab'  => 'tutor'
+				'tab'  => 'tutor',
 			),
 			admin_url( 'admin.php' )
 		),
-		'desc'  => esc_html__( 'Migrate the Tutor data to LearnPress with the LearnPress Migration Tool.', 'learnpress-import-export' )
+		'desc'  => esc_html__( 'Migrate the Tutor data to LearnPress with the LearnPress Migration Tool.', 'learnpress-import-export' ),
 	);
 }
 
@@ -29,11 +29,27 @@ if ( Plugin::is_learndash_active() ) {
 		'url'   => add_query_arg(
 			array(
 				'page' => 'lp-migration-tool',
-				'tab'  => 'learndash'
+				'tab'  => 'learndash',
 			),
 			admin_url( 'admin.php' )
 		),
-		'desc'  => esc_html__( 'Migrate the LearnDash data to LearnPress with the LearnPress Migration Tool.', 'learnpress-import-export' )
+		'desc'  => esc_html__( 'Migrate the LearnDash data to LearnPress with the LearnPress Migration Tool.', 'learnpress-import-export' ),
+	);
+}
+
+if ( Plugin::is_master_study_active() ) {
+	$config_data['master_study'] = array(
+		'title' => esc_html__( 'MasterStudy', 'learnpress-import-export' ),
+		'name'  => 'master_study',
+		'icon'  => '',
+		'url'   => add_query_arg(
+			array(
+				'page' => 'lp-migration-tool',
+				'tab'  => 'master_study',
+			),
+			admin_url( 'admin.php' )
+		),
+		'desc'  => esc_html__( 'Migrate the MasterStudy data to LearnPress with the LearnPress Migration Tool.', 'learnpress-import-export' ),
 	);
 }
 

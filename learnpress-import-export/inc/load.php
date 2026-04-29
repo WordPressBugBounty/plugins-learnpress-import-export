@@ -69,7 +69,7 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 		 * Hook into actions and filters.
 		 */
 		protected function hooks() {
-			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+			add_action( 'learn-press/admin/menu-items', array( $this, 'admin_menu' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
 			add_action( 'admin_init', array( $this, 'do_action' ) );
 
@@ -83,21 +83,16 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 		/**
 		 * Add admin menu.
 		 */
-		public function admin_menu() {
-			add_submenu_page(
-				'learn_press',
-				__( 'Import/Export', 'learnpress-import-export' ),
-				__( 'Import/Export', 'learnpress-import-export' ),
-				'manage_options',
-				'learnpress-import-export',
-				array( $this, 'admin_page' )
-			);
+		public function admin_menu( $menu_items = array() ) {
+			$menu_items['import-export'] = include_once LP_ADDON_IMPORT_EXPORT_PATH . '/views/admin/sub-menus/class-lp-submenu-import-export.php';
+
+			return $menu_items;
 		}
 
 		/**
 		 * Admin import export page.
 		 */
-		public function admin_page() {
+		public static function admin_page() {
 			wp_enqueue_style( 'learn-press-import-export-style' );
 			lpie_admin_view( 'settings-page' );
 		}

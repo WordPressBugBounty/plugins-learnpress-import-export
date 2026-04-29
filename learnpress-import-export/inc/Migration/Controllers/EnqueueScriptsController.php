@@ -6,6 +6,10 @@ use LPImportExport\Migration\Helpers\Debug;
 use LPImportExport\Migration\Helpers\Page;
 use LPImportExport\Migration\Helpers\Config;
 use LPImportExport\Migration\Helpers\RestApi;
+use LPImportExport\Migration\Models\MasterStudyCourseItemModel;
+use LPImportExport\Migration\Models\MasterStudyCourseModel;
+use LPImportExport\Migration\Models\MasterStudyQuestionModel;
+use LPImportExport\Migration\Models\MasterStudySectionModel;
 use LPImportExport\Migration\Models\TutorCourseItemModel;
 use LPImportExport\Migration\Models\TutorCourseModel;
 use LPImportExport\Migration\Models\TutorQuestionModel;
@@ -117,6 +121,19 @@ class EnqueueScriptsController {
 				array(
 					'learndash_content_total'         => \LPImportExport\LearnDashMigration\LearnDashHelper::get_content_total(),
 					'learndash_student_migrate_total' => \LPImportExport\LearnDashMigration\LearnDashHelper::get_student_migrate_total(),
+				)
+			);
+		}
+
+		if ( Plugin::is_master_study_active() ) {
+			$scripts = array_merge(
+				$scripts,
+				array(
+					'master_study_course_total'         => MasterStudyCourseModel::get_course_total(),
+					'master_study_section_total'        => MasterStudySectionModel::get_section_total(),
+					'master_study_course_item_total'    => MasterStudyCourseItemModel::get_course_item_total(),
+					'master_study_question_total'       => MasterStudyQuestionModel::get_question_total(),
+					'master_study_course_process_total' => MasterStudyCourseModel::get_process_course_total(),
 				)
 			);
 		}
