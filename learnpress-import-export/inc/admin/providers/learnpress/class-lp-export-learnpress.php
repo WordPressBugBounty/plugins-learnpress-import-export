@@ -42,7 +42,18 @@ if ( ! class_exists( 'LP_Export_LearnPress_Provider' ) ) {
 				return;
 			}
 
-			$this->_exported_data = array_merge( $this->_exported_data, $_REQUEST );
+			// Patch C: Only merge known, expected export parameters — never the full $_REQUEST.
+			$allowed_export_keys  = array(
+				'courses',
+				'learn-press-export-file-name',
+				'export-nonce',
+				'save_export',
+				'download_export',
+				'step',
+				'action',
+			);
+			$filtered_request     = array_intersect_key( $_REQUEST, array_flip( $allowed_export_keys ) );
+			$this->_exported_data = array_merge( $this->_exported_data, $filtered_request );
 
 			add_action( 'lpie_export_view_step_1', array( $this, 'step_1' ) );
 			add_action( 'lpie_export_view_step_2', array( $this, 'step_2' ) );
@@ -219,12 +230,12 @@ if ( ! class_exists( 'LP_Export_LearnPress_Provider' ) ) {
 			$file_name    = LP_Request::get_param( 'learn-press-export-file-name' );
 			$xml_filename = $this->get_export_file_name( $file_name );
 
-			if ( isset( $_REQUEST['save_export'] ) ) {
+			if ( ! empty( LP_Request::get_param( 'save_export' ) ) ) {
 				$xml_filename = 'learnpress/export/' . $xml_filename;
 				lpie_put_contents( $xml_filename, $content );
 			}
 
-			if ( isset( $_REQUEST['download_export'] ) ) {
+			if ( ! empty( LP_Request::get_param( 'download_export' ) ) ) {
 				$download_filename = $this->get_download_export_file_name( $file_name );
 				$download_filename = 'learnpress/tmp/' . $download_filename;
 				lpie_put_contents( $download_filename, $content );

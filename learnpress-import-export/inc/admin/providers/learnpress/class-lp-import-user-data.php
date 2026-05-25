@@ -94,25 +94,52 @@ if ( ! class_exists( 'LP_Import_User_LearnPress' ) ) {
 		/**
 		 * Import from server view.
 		 *
-		 * @param $file
+		 * @param string $file Raw value of the learnpress_import_form_server request
+		 *                     parameter — MUST be sanitised before any filesystem use.
 		 */
 		public function import_form_server_view( $file ) {
+			// ---------------------------------------------------------------
+			// Path-traversal jail (same pattern as do_import()).
+			// Collapse any ../ sequences to a basename, then confirm the
+			// resolved real path sits inside the learnpress/ uploads root.
+			// ---------------------------------------------------------------
+			$safe_name = sanitize_file_name( basename( $file ) );
+
+			// Detect the original sub-directory prefix (export/ or import/).
+			if ( strpos( $file, 'export/' ) === 0 ) {
+				$subdir = 'export/';
+			} elseif ( strpos( $file, 'import/' ) === 0 ) {
+				$subdir = 'import/';
+			} else {
+				$subdir = 'import/';
+			}
+
+			$base_dir = realpath( lpie_root_path() . '/learnpress/' . $subdir );
+			$target   = realpath( lpie_root_path() . '/learnpress/' . $subdir . $safe_name );
+
+			// Bail if the path cannot be resolved or escapes the allowed directory.
+			if ( ! $base_dir || ! $target || strpos( $target, $base_dir . DIRECTORY_SEPARATOR ) !== 0 ) {
+				wp_die( esc_html__( 'Invalid file path.', 'learnpress-import-export' ) );
+			}
+
+			// Safe relative path used in the nonce URL (never the raw input).
+			$safe_relative = $subdir . $safe_name;
 			?>
             <h2><strong><?php _e( 'Course(s) found on this file', 'learnpress-import-export' ); ?></strong>
-                (<?php _e( str_replace( 'export/', '', $file ) ) ?>):</h2>
+                (<?php echo esc_html( $safe_name ); ?>):</h2>
             <table class="wp-list-table widefat fixed striped">
 				<?php
-				$file_data = $this->parse( lpie_root_path() . '/learnpress/' . $file );
-				$courses   = $file_data ['posts'];
+				$file_data = $this->parse( $target );
+				$courses   = $file_data['posts'];
 				foreach ( $courses as $course ) {
-					if ( $course['post_type'] == LP_COURSE_CPT ) {
-						_e( '<tr><td>' . $course['post_title'] . '</td><tr>' );
+					if ( $course['post_type'] === LP_COURSE_CPT ) {
+						echo '<tr><td>' . esc_html( $course['post_title'] ) . '</td></tr>';
 					}
 				}
 				?>
             </table>
             <p>
-                <a href="<?php echo wp_nonce_url( admin_url( 'admin.php?page=learnpress-import-export&tab=import&import-user-file=' . $file . '&step=3' ), 'learnpress-import-export', 'import-nonce' ); ?>"
+                <a href="<?php echo wp_nonce_url( admin_url( 'admin.php?page=learnpress-import-export&tab=import&import-user-file=' . rawurlencode( $safe_relative ) . '&step=3' ), 'learnpress-import-export', 'import-nonce' ); ?>"
                    class="button button-primary button-large"><?php _e( 'Confirm Import', 'learnpress-import-export' ); ?></a>
                 <a href="<?php echo admin_url( 'admin.php?page=learnpress-import-export&tab=import' ); ?>"
                    class="button button-large"><?php _e( 'Cancel', 'learnpress-import-export' ); ?></a>
@@ -146,9 +173,27 @@ if ( ! class_exists( 'LP_Import_User_LearnPress' ) ) {
 		 * Import process.
 		 */
 		public function do_import() {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( esc_html__( 'You do not have sufficient permissions.', 'learnpress-import-export' ) );
+			}
+
 			$arrResult = array();
-			$handle    = fopen(lpie_root_path() . '/learnpress/' . $_REQUEST['import-user-file'],'r');
-			$delimiter = $this->detectDelimiter( lpie_root_path() . '/learnpress/' . $_REQUEST['import-user-file'] );
+
+			// --- Patch A: Sanitize path to prevent path-traversal (CVE import-user-file) ---
+			$raw_file  = LP_Request::get_param( 'import-user-file' );
+			// Allow only a single-level tmp/ prefix; strip everything else.
+			$subdir    = ( strpos( $raw_file, 'tmp/' ) === 0 ) ? 'tmp/' : '';
+			$safe_file = sanitize_file_name( basename( $raw_file ) );
+			$jail_dir  = realpath( lpie_root_path() . '/learnpress' );
+			$full_path = realpath( lpie_root_path() . '/learnpress/' . $subdir . $safe_file );
+
+			if ( ! $full_path || ! $jail_dir || strpos( $full_path, $jail_dir . DIRECTORY_SEPARATOR ) !== 0 ) {
+				wp_die( esc_html__( 'Invalid import file path.', 'learnpress-import-export' ) );
+			}
+			// --- End Patch A ---
+
+			$handle    = fopen( $full_path, 'r' );
+			$delimiter = $this->detectDelimiter( $full_path );
 
 			while( ($data_csv = fgetcsv($handle, 1000, $delimiter ) ) !== FALSE ) {
 				$arrResult[] = $data_csv;
@@ -183,11 +228,12 @@ if ( ! class_exists( 'LP_Import_User_LearnPress' ) ) {
 				}
 			}
 
-			if ( ! empty( $_REQUEST['save_import'] ) ) {
+			if ( ! empty( LP_Request::get_param( 'save_import' ) ) ) {
 				if ( ! file_exists( lpie_import_path() ) ) {
 					mkdir( lpie_import_path(), 0777, true );
 				}
-				copy( lpie_root_path() . '/learnpress/' . $_REQUEST['import-user-file'], lpie_import_path() . '/' . basename( $_REQUEST['import-user-file'] ) );
+				// $full_path and $safe_file are already validated above.
+				copy( $full_path, lpie_import_path() . '/' . $safe_file );
 			}
 
 		}

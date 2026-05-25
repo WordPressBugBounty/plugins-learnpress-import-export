@@ -618,7 +618,7 @@ class LearnDashDataDump {
 			if ( strpos( $key, '_edit_' ) === 0 || '_wp_old_slug' === $key ) {
 				continue;
 			}
-			$clean_meta[ $key ] = count( $values ) === 1 ? maybe_unserialize( $values[0] ) : array_map( 'maybe_unserialize', $values );
+			$clean_meta[ $key ] = count( $values ) === 1 ? lpie_safe_maybe_unserialize( $values[0] ) : array_map( 'lpie_safe_maybe_unserialize', $values );
 		}
 
 		return $clean_meta;

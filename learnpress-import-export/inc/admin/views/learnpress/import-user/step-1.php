@@ -4,6 +4,7 @@
  *
  * @since 3.0.0
  */
+defined( 'ABSPATH' ) || exit;
 ?>
 
 <ul class="form-options">
@@ -25,7 +26,7 @@ if ( ! empty( $file['file'] ) && file_exists( $file['file'] ) ) {
     $_REQUEST['file'] = $file['file'];
 }?>
 
-<input type="hidden" name="import-user-file" value="tmp/<?php echo basename( $_REQUEST['file'] ); ?>"/>
+<input type="hidden" name="import-user-file" value="tmp/<?php echo esc_attr( basename( $_REQUEST['file'] ?? '' ) ); ?>"/>
 <input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'lpie-import-file' ); ?>"/>
 <button class="button button-primary"><?php _e( 'Import', 'learnpress-import-export' ); ?></button>
 

@@ -12,12 +12,10 @@ class Plugin {
 //	}
 
 	public static function is_tutor_active() {
-		return true;
 		return is_plugin_active( 'tutor/tutor.php' );
 	}
 
 	public static function is_learndash_active() {
-		return true;
 		return is_plugin_active( 'sfwd-lms/sfwd_lms.php' );
 	}
 

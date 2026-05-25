@@ -1,4 +1,5 @@
 <?php
+defined( 'ABSPATH' ) || exit;
 $import_form_server = LP_Request::get_param( 'learnpress_import_form_server' );
 ?>
 

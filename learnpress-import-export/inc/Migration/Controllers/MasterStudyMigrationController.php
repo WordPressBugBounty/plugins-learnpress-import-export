@@ -45,7 +45,7 @@ class MasterStudyMigrationController {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'permission_callback' => function () {
-						return current_user_can( 'administrator' );
+						return current_user_can( 'manage_options' );
 					},
 					'callback'            => array( $this, 'migrate' ),
 				),
@@ -58,7 +58,7 @@ class MasterStudyMigrationController {
 			array(
 				'methods'             => WP_REST_Server::DELETABLE,
 				'permission_callback' => function () {
-					return current_user_can( 'administrator' );
+					return current_user_can( 'manage_options' );
 				},
 				'callback'            => array( $this, 'delete_migrated_data' ),
 			),
@@ -193,7 +193,7 @@ class MasterStudyMigrationController {
 	 */
 	public function migrate( \WP_REST_Request $request ) {
 		try {
-			if ( ! current_user_can( 'administrator' ) ) {
+			if ( ! current_user_can( 'manage_options' ) ) {
 				throw new Exception( __( 'You are not allowed to migrate.', 'learnpress-import-export' ), 403 );
 			}
 
@@ -924,10 +924,9 @@ class MasterStudyMigrationController {
 								$master_study_quiz_id     = $master_study_quiz_attempt_answer->quiz_id;
 								$lp_question_id           = $this->get_migrated_lp_question( $master_study_question_id )['lp_question_id'];
 
-								$master_study_user_answer = maybe_unserialize( $master_study_quiz_attempt_answer->user_answer );
-								if ( empty( $master_study_given_answer ) ) {
-									$master_study_given_answer = '';
-								}
+								$master_study_user_answer  = lpie_safe_maybe_unserialize( $master_study_quiz_attempt_answer->user_answer );
+								// Canonical variable used throughout the answer-mapping block below.
+								$master_study_given_answer = $master_study_user_answer;
 
 								$master_study_question_type = get_post_meta( $master_study_question_id, 'type', true );
 
@@ -940,7 +939,7 @@ class MasterStudyMigrationController {
 								} elseif ( $master_study_question_type === QuestionType::MULTI_CHOICE ) {
 									if ( ! empty( $master_study_user_answer ) ) {
 										if ( is_string( $master_study_user_answer ) ) {
-											$master_study_given_answer = explode( ',', $master_study_given_answer );
+											$master_study_given_answer = explode( ',', $master_study_user_answer );
 										}
 
 										$lp_multi_choice_answered = array();
@@ -964,7 +963,7 @@ class MasterStudyMigrationController {
 
 									if ( ! empty( $master_study_user_answer ) ) {
 										if ( is_string( $master_study_user_answer ) ) {
-											$master_study_given_answer = explode( ',', $master_study_given_answer );
+											$master_study_given_answer = explode( ',', $master_study_user_answer );
 										}
 
 										$lp_fill_in_blank_answered = array();
@@ -976,10 +975,16 @@ class MasterStudyMigrationController {
 												$lp_answer_meta = LPQuestionAnswerModel::get_question_answer_meta( $lp_answer_id, '_blanks', true );
 
 												if ( $lp_answer_meta ) {
-													$lp_answer_meta = maybe_unserialize( $lp_answer_meta );
+													$lp_answer_meta = lpie_safe_maybe_unserialize( $lp_answer_meta );
+													if ( ! is_object( $lp_answer_meta ) || ! isset( $lp_answer_meta->meta_value ) ) {
+														continue;
+													}
 													preg_match_all( '/id="([a-f0-9]+)"/', $lp_answer_meta->meta_value, $matches );
-													$lp_answer_ids                              = $matches[1] ?? array();
-													$lp_answer_id                               = $lp_answer_ids[ $key ];
+													$lp_answer_ids = $matches[1] ?? array();
+													$lp_answer_id  = $lp_answer_ids[ $key ] ?? '';
+													if ( empty( $lp_answer_id ) ) {
+														continue;
+													}
 													$lp_fill_in_blank_answered[ $lp_answer_id ] = $master_study_answer_value;
 												}
 											}

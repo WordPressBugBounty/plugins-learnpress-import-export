@@ -156,8 +156,17 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 
 		/**
 		 * Do actions when admin init.
+		 *
+		 * All import/export actions are admin-only operations. Gate the entire
+		 * block here so that non-admin users and guests never trigger file
+		 * system access, tmp cleanup, or the custom action hook.
 		 */
 		public function do_action() {
+			// Single capability guard — nothing below runs for non-admins or guests.
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+
 			do_action( 'learn_press_import_export_actions' );
 
 			// delete files
@@ -170,15 +179,15 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 
 		/**
 		 * Delete file what was imported/exported.
+		 *
+		 * Capability is already enforced by do_action(). Nonce is verified
+		 * here as a CSRF guard. Capability check comes first (correct order).
 		 */
 		private function _delete_files() {
 			// delete file
-			if ( ! empty( $_REQUEST['delete-export'] ) && wp_verify_nonce(
-				$_REQUEST['nonce'],
-				'lpie-delete-export-file'
-			) ) {
-				if ( ! current_user_can( UserModel::ROLE_ADMINISTRATOR ) ) {
-					wp_die( __( 'You do not have sufficient permissions to action.' ) );
+			if ( ! empty( $_REQUEST['delete-export'] ) ) {
+				if ( ! wp_verify_nonce( $_REQUEST['nonce'] ?? '', 'lpie-delete-export-file' ) ) {
+					wp_die( __( 'Security check failed.', 'learnpress-import-export' ) );
 				}
 
 				$file = learn_press_get_request( 'delete-export' );
@@ -191,12 +200,9 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 				wp_redirect( admin_url( 'admin.php?page=learnpress-import-export&tab=export' ) );
 				exit();
 			}
-			if ( ! empty( $_REQUEST['delete-import'] ) && wp_verify_nonce(
-				$_REQUEST['nonce'],
-				'lpie-delete-import-file'
-			) ) {
-				if ( ! current_user_can( UserModel::ROLE_ADMINISTRATOR ) ) {
-					wp_die( __( 'You do not have sufficient permissions to action.' ) );
+			if ( ! empty( $_REQUEST['delete-import'] ) ) {
+				if ( ! wp_verify_nonce( $_REQUEST['nonce'] ?? '', 'lpie-delete-import-file' ) ) {
+					wp_die( __( 'Security check failed.', 'learnpress-import-export' ) );
 				}
 
 				$file = learn_press_get_request( 'delete-import' );
@@ -213,11 +219,14 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 
 		/**
 		 * Download file what was imported/exported.
+		 *
+		 * Capability is already enforced by do_action(). Each branch still
+		 * requires its own nonce as a CSRF guard.
 		 */
 		private function _download_file() {
 			// download file was exported
 			if ( ! empty( $_REQUEST['download-export'] ) && wp_verify_nonce(
-				$_REQUEST['nonce'],
+				$_REQUEST['nonce'] ?? '',
 				'lpie-download-export-file'
 			) ) {
 				$file = learn_press_get_request( 'download-export' );
@@ -228,7 +237,7 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 			}
 			// download file was imported
 			if ( ! empty( $_REQUEST['download-import'] ) && wp_verify_nonce(
-				$_REQUEST['nonce'],
+				$_REQUEST['nonce'] ?? '',
 				'lpie-download-import-file'
 			) ) {
 				$file = learn_press_get_request( 'download-import' );
@@ -237,14 +246,27 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 				echo lpie_get_contents( 'learnpress/import/' . $file );
 				die();
 			}
-			// download file was imported
+			// download a generic file (restricted to known learnpress subdirectories)
 			if ( ! empty( $_REQUEST['download-file'] ) && wp_verify_nonce(
-				$_REQUEST['nonce'],
+				$_REQUEST['nonce'] ?? '',
 				'lpie-download-file'
 			) ) {
-				$file = learn_press_get_request( 'download-file' );
-				lpie_export_header( ! empty( $_REQUEST['alias'] ) ? $_REQUEST['alias'] : basename( $file ) );
-				echo lpie_get_contents( $file );
+				$file      = learn_press_get_request( 'download-file' );
+				$safe_file = basename( $file );
+
+				// Restrict to known learnpress subdirectories only.
+				if ( strpos( $file, 'learnpress/export/' ) === 0 ) {
+					$subdir = 'learnpress/export/';
+				} elseif ( strpos( $file, 'learnpress/import/' ) === 0 ) {
+					$subdir = 'learnpress/import/';
+				} else {
+					// Default to tmp (covers download_export flow).
+					$subdir = 'learnpress/tmp/';
+				}
+
+				$alias = ! empty( $_REQUEST['alias'] ) ? sanitize_file_name( $_REQUEST['alias'] ) : $safe_file;
+				lpie_export_header( $alias );
+				echo lpie_get_contents( $subdir . $safe_file );
 				die();
 			}
 		}

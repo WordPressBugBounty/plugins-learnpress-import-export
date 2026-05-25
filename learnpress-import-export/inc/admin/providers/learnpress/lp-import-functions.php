@@ -49,6 +49,20 @@ function lp_import_handle_upload( $file, $overrides = array() ) {
 			return array( 'error' => $message );
 		}
 	}
+
+	// Patch L2: enforce extension allowlist regardless of $overrides['test_type'].
+	// Callers pass test_type=false to skip MIME sniffing for WXR/CSV; without this
+	// guard an admin could upload arbitrary .php into uploads/learnpress/tmp/.
+	if ( ! empty( $file['name'] ) ) {
+		$ext           = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
+		$allowed_exts  = isset( $overrides['allowed_exts'] ) && is_array( $overrides['allowed_exts'] )
+			? $overrides['allowed_exts']
+			: array( 'xml', 'csv' );
+		if ( ! in_array( $ext, $allowed_exts, true ) ) {
+			return array( 'error' => __( 'Sorry, this file type is not permitted for security reasons.', 'learnpress-import-export' ) );
+		}
+	}
+
 	$action = 'lpie_handle_upload';
 	/**
 	 * The dynamic portion of the hook name, $action, refers to the post action.

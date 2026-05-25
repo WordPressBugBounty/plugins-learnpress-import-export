@@ -706,9 +706,9 @@ class LearnDashStudentDataMigration {
 			return $parsed;
 		}
 
-		// Try unserialize.
-		$parsed = maybe_unserialize( $answer_data );
-		if ( false !== $parsed ) {
+		// Try safe-unserialize (blocks object injection via crafted serialized strings).
+		$parsed = lpie_safe_maybe_unserialize( $answer_data );
+		if ( $parsed !== $answer_data ) {
 			return $parsed;
 		}
 

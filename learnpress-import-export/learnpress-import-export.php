@@ -1,15 +1,15 @@
 <?php
 /**
- * Plugin Name: LearnPress - Export/Import Courses
+ * Plugin Name: LearnPress – Backup & Migration Tool
  * Plugin URI: https://thimpress.com/product/learnpress-export-import/
  * Description: Export and Import your courses with all lesson and quiz in easiest way.
  * Author: ThimPress
- * Version: 4.1.4
+ * Version: 4.1.5
  * Author URI: http://thimpress.com
  * Tags: learnpress, lms, add-on, prerequisites courses
  * Text Domain: learnpress-import-export
  * Domain Path: /languages/
- * Require_LP_Version: 4.3.2.7
+ * Require_LP_Version: 4.3.7
  * Requires at least: 6.0
  * Requires PHP: 7.4
  *

@@ -41,7 +41,7 @@ class TutorMigrationController {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'permission_callback' => function () {
-						return current_user_can( 'administrator' );
+						return current_user_can( 'manage_options' );
 					},
 					'callback'            => array( $this, 'migrate' ),
 				),
@@ -54,7 +54,7 @@ class TutorMigrationController {
 			array(
 				'methods'             => WP_REST_Server::DELETABLE,
 				'permission_callback' => function () {
-					return current_user_can( 'administrator' );
+					return current_user_can( 'manage_options' );
 				},
 				'callback'            => array( $this, 'delete_migrated_data' ),
 			),
@@ -189,7 +189,7 @@ class TutorMigrationController {
 	 */
 	public function migrate( \WP_REST_Request $request ) {
 		try {
-			if ( ! current_user_can( 'administrator' ) ) {
+			if ( ! current_user_can( 'manage_options' ) ) {
 				throw new Exception( __( 'You are not allowed to migrate.', 'learnpress-import-export' ), 403 );
 			}
 
@@ -515,7 +515,7 @@ class TutorMigrationController {
 					}
 				} elseif ( $tutor_item_post_type === LP_ADDON_IMPORT_EXPORT_TUTOR_ASSIGNMENT_CPT ) {  // assignment
 					//Attachments
-					$tutor_assignment_attachments       = maybe_unserialize( get_post_meta( $tutor_item_id, '_tutor_assignment_attachments', true ) );
+					$tutor_assignment_attachments       = lpie_safe_maybe_unserialize( get_post_meta( $tutor_item_id, '_tutor_assignment_attachments', true ) );
 					$lp_course_item_meta['attachments'] = $tutor_assignment_attachments;
 
 					//Duration
@@ -939,7 +939,7 @@ class TutorMigrationController {
 									$tutor_question_id = $tutor_quiz_attempt_answer->question_id;
 									$lp_question_id    = $this->get_migrated_lp_question( $tutor_question_id )['lp'];
 
-									$tutor_given_answer  = maybe_unserialize( $tutor_quiz_attempt_answer->given_answer );
+									$tutor_given_answer  = lpie_safe_maybe_unserialize( $tutor_quiz_attempt_answer->given_answer );
 									$tutor_question_type = $tutor_quiz_attempt_answer->question_type;
 									if ( $tutor_question_type === 'single_choice' ) {
 										if ( is_array( $tutor_given_answer ) && isset( $tutor_given_answer[0] ) ) {
@@ -988,10 +988,16 @@ class TutorMigrationController {
 													$lp_answer_meta = LPQuestionAnswerModel::get_question_answer_meta( $lp_answer_id, '_blanks', true );
 
 													if ( $lp_answer_meta ) {
-														$lp_answer_meta = maybe_unserialize( $lp_answer_meta );
+														$lp_answer_meta = lpie_safe_maybe_unserialize( $lp_answer_meta );
+														if ( ! is_object( $lp_answer_meta ) || ! isset( $lp_answer_meta->meta_value ) ) {
+															continue;
+														}
 														preg_match_all( '/id="([a-f0-9]+)"/', $lp_answer_meta->meta_value, $matches );
-														$lp_answer_ids                              = $matches[1] ?? array();
-														$lp_answer_id                               = $lp_answer_ids[ $key ];
+														$lp_answer_ids = $matches[1] ?? array();
+														$lp_answer_id  = $lp_answer_ids[ $key ] ?? '';
+														if ( empty( $lp_answer_id ) ) {
+															continue;
+														}
 														$lp_fill_in_blank_answered[ $lp_answer_id ] = $tutor_answer_value;
 													}
 												}

@@ -116,12 +116,19 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 		 * @throws Exception
 		 */
 		public function do_import() {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( esc_html__( 'You do not have sufficient permissions.', 'learnpress-import-export' ) );
+			}
 
 			$import_file      = LP_Request::get_param( 'import-file' );
 			$path_import_file = realpath( lpie_root_path() . '/learnpress/' . $import_file );
-			if ( ! $path_import_file ) {
+			$jail_dir         = realpath( lpie_root_path() . '/learnpress' );
+
+			// --- Patch B: Path jail — import-file must resolve inside uploads/learnpress ---
+			if ( ! $path_import_file || ! $jail_dir || strpos( $path_import_file, $jail_dir . DIRECTORY_SEPARATOR ) !== 0 ) {
 				return;
 			}
+			// --- End Patch B path jail ---
 
 			$file_data   = $this->parse( $path_import_file );
 			$map_authors = learn_press_get_request( 'map_authors' );
@@ -229,7 +236,7 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 				}
 			}
 
-			if ( ! empty( $_REQUEST['save_import'] ) ) {
+			if ( ! empty( LP_Request::get_param( 'save_import' ) ) ) {
 				if ( ! file_exists( lpie_import_path() ) ) {
 					mkdir( lpie_import_path(), 0777, true );
 				}
@@ -577,8 +584,9 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 
 					if ( $key ) {
 						// export gets meta straight from the DB so could have a serialized string
+						// Patch B: use safe wrapper to prevent PHP Object Injection via WXR XML.
 						if ( ! $value ) {
-							$value = maybe_unserialize( $meta['value'] );
+							$value = lpie_safe_maybe_unserialize( $meta['value'] );
 						}
 
 						update_post_meta( $post_id, $key, $value );
@@ -824,12 +832,20 @@ if ( ! class_exists( 'LP_Import_LearnPress_Provider' ) ) {
 					$result             = $wpdb->get_results( $query );
 					$question_answer_id = $result[0]->question_answer_id;
 
+					// Patch B (extended): strip object payloads from WXR-supplied meta_value
+					// before persisting, so later maybe_unserialize() calls cannot instantiate
+					// attacker-controlled classes.
+					$meta_value = $answer_meta['meta_value'];
+					if ( is_string( $meta_value ) && is_serialized( $meta_value ) ) {
+						$meta_value = maybe_serialize( lpie_safe_maybe_unserialize( $meta_value ) );
+					}
+
 					$inserted = $wpdb->insert(
 						$wpdb->prefix . 'learnpress_question_answermeta',
 						array(
 							'learnpress_question_answer_id' => $question_answer_id,
 							'meta_key'   => $answer_meta['meta_key'],
-							'meta_value' => $answer_meta['meta_value'],
+							'meta_value' => $meta_value,
 						),
 						array( '%d', '%s', '%s' )
 					);

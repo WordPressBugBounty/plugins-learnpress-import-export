@@ -358,3 +358,41 @@ if ( ! function_exists( '_lpie_sort_files' ) ) {
 		return $b['lastmodunix'] - $a['lastmodunix'];
 	}
 }
+
+if ( ! function_exists( 'lpie_safe_maybe_unserialize' ) ) {
+	/**
+	 * Safely deserialize a value without instantiating PHP objects.
+	 *
+	 * Uses PHP's engine-level 'allowed_classes' => false option (available since
+	 * PHP 7.0, the minimum WordPress 6.x requires). The PHP engine replaces every
+	 * O: and C: token — at any nesting depth inside arrays — with an
+	 * __PHP_Incomplete_Class stub. No magic methods (__wakeup, __destruct,
+	 * __toString) fire at any level.
+	 *
+	 * Drop-in replacement for maybe_unserialize(). Non-string values and
+	 * strings that are not serialized are returned unchanged.
+	 *
+	 * Used by the WXR importer and all migration controllers so the logic
+	 * lives in exactly one place.
+	 *
+	 * @since 4.1.5
+	 *
+	 * @param mixed $value Raw value (serialized string or plain scalar/array).
+	 *
+	 * @return mixed Deserialized array/scalar (no live objects), or the original value.
+	 */
+	function lpie_safe_maybe_unserialize( $value ) {
+		if ( ! is_string( $value ) || ! is_serialized( $value ) ) {
+			return $value;
+		}
+
+		// Engine-level object block: every O:/C: token at any depth becomes
+		// __PHP_Incomplete_Class — no magic methods can fire.
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+		$result = unserialize( $value, array( 'allowed_classes' => false ) );
+
+		// unserialize() returns false on malformed input.
+		// Guard the legitimate serialize(false) === 'b:0;' case.
+		return ( false === $result && 'b:0;' !== $value ) ? $value : $result;
+	}
+}
