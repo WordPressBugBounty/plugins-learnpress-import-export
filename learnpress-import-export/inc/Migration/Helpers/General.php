@@ -95,7 +95,6 @@ class General {
 			'transform' => true,
 		);
 
-
 		return wp_kses( wp_unslash( $content ), $allowed_html );
 	}
 
@@ -104,7 +103,7 @@ class General {
 	 *
 	 * @return string
 	 */
-	public static function get_unique_id($length = 12) {
-		return substr(md5(uniqid('', true)), 0, $length);
+	public static function get_unique_id( $length = 12 ) {
+		return substr( md5( uniqid( '', true ) ), 0, $length );
 	}
 }

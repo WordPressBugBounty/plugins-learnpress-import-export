@@ -393,6 +393,50 @@ if ( ! function_exists( 'lpie_safe_maybe_unserialize' ) ) {
 
 		// unserialize() returns false on malformed input.
 		// Guard the legitimate serialize(false) === 'b:0;' case.
-		return ( false === $result && 'b:0;' !== $value ) ? $value : $result;
+		if ( false === $result && 'b:0;' !== $value ) {
+			return $value;
+		}
+
+		// allowed_classes => false only blocks magic methods; the returned value
+		// can still CONTAIN __PHP_Incomplete_Class stubs (top level or nested in
+		// arrays). Passing such a stub to update_post_meta()/wp_unslash() throws
+		// "cannot modify property on incomplete object" on PHP 8 (HTTP 500).
+		// Recursively convert every object to a plain array so the result is
+		// guaranteed object-free.
+		return lpie_strip_objects( $result );
+	}
+}
+
+if ( ! function_exists( 'lpie_strip_objects' ) ) {
+	/**
+	 * Recursively convert any object (including __PHP_Incomplete_Class stubs)
+	 * into a plain array so the returned data contains only arrays/scalars.
+	 *
+	 * @since 4.1.6
+	 *
+	 * @param mixed $data Value that may contain objects at any nesting depth.
+	 *
+	 * @return mixed Object-free value (objects become arrays).
+	 */
+	function lpie_strip_objects( $data ) {
+		if ( is_object( $data ) ) {
+			$data = (array) $data;
+		}
+
+		if ( is_array( $data ) ) {
+			$clean = array();
+			foreach ( $data as $key => $item ) {
+				// Drop the marker key PHP adds when casting an incomplete class.
+				if ( '__PHP_Incomplete_Class_Name' === $key ) {
+					continue;
+				}
+
+				$clean[ $key ] = lpie_strip_objects( $item );
+			}
+
+			return $clean;
+		}
+
+		return $data;
 	}
 }

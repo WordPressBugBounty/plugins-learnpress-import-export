@@ -924,7 +924,7 @@ class MasterStudyMigrationController {
 								$master_study_quiz_id     = $master_study_quiz_attempt_answer->quiz_id;
 								$lp_question_id           = $this->get_migrated_lp_question( $master_study_question_id )['lp_question_id'];
 
-								$master_study_user_answer  = lpie_safe_maybe_unserialize( $master_study_quiz_attempt_answer->user_answer );
+								$master_study_user_answer = lpie_safe_maybe_unserialize( $master_study_quiz_attempt_answer->user_answer );
 								// Canonical variable used throughout the answer-mapping block below.
 								$master_study_given_answer = $master_study_user_answer;
 

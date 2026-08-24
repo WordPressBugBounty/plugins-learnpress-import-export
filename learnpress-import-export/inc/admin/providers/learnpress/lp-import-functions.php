@@ -13,7 +13,7 @@
 defined( 'ABSPATH' ) || exit;
 
 function lpr_upload_dir( $time = null ) {
-	$siteurl = get_option( 'siteurl' );
+	$siteurl     = get_option( 'siteurl' );
 	$upload_path = 'uploads';//trim( get_option( 'upload_path' ) );
 
 	if ( empty( $upload_path ) || 'uploads' == $upload_path ) {
@@ -27,16 +27,18 @@ function lpr_upload_dir( $time = null ) {
 
 	$url = plugins_url() . $upload_path;
 
-	$uploads = apply_filters( 'upload_dir',
+	$uploads = apply_filters(
+		'upload_dir',
 		array(
 			'path'    => $dir,
 			'url'     => $url,
 			'error'   => false,
-		) );
+		)
+	);
 
 	// Make sure we have an uploads directory.
 	if ( ! wp_mkdir_p( $uploads['path'] ) ) {
-		$message = sprintf( __( 'Unable to create directory. Is its parent directory writable by the server?' ) );
+		$message          = sprintf( __( 'Unable to create directory. Is its parent directory writable by the server?' ) );
 		$uploads['error'] = $message;
 	}
 
@@ -54,8 +56,8 @@ function lp_import_handle_upload( $file, $overrides = array() ) {
 	// Callers pass test_type=false to skip MIME sniffing for WXR/CSV; without this
 	// guard an admin could upload arbitrary .php into uploads/learnpress/tmp/.
 	if ( ! empty( $file['name'] ) ) {
-		$ext           = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
-		$allowed_exts  = isset( $overrides['allowed_exts'] ) && is_array( $overrides['allowed_exts'] )
+		$ext          = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
+		$allowed_exts = isset( $overrides['allowed_exts'] ) && is_array( $overrides['allowed_exts'] )
 			? $overrides['allowed_exts']
 			: array( 'xml', 'csv' );
 		if ( ! in_array( $ext, $allowed_exts, true ) ) {
@@ -72,7 +74,7 @@ function lp_import_handle_upload( $file, $overrides = array() ) {
 	 *
 	 * @param array $file An array of data for a single file.
 	 */
-	$file = apply_filters( "lpr_import_handle_upload_prefilter", $file );
+	$file = apply_filters( 'lpr_import_handle_upload_prefilter', $file );
 
 	// You may define your own function and pass the name in $overrides['upload_error_handler']
 	$upload_error_handler = 'lpr_handle_upload_error';
@@ -110,7 +112,7 @@ function lp_import_handle_upload( $file, $overrides = array() ) {
 			'',
 			__( 'Missing a temporary folder.' ),
 			__( 'Failed to write file to disk.' ),
-			__( 'File upload stopped by extension.' )
+			__( 'File upload stopped by extension.' ),
 		);
 	}
 
@@ -120,7 +122,7 @@ function lp_import_handle_upload( $file, $overrides = array() ) {
 
 	// If you override this, you must provide $ext and $type!!
 	$test_type = isset( $overrides['test_type'] ) ? $overrides['test_type'] : true;
-	$mimes = isset( $overrides['mimes'] ) ? $overrides['mimes'] : false;
+	$mimes     = isset( $overrides['mimes'] ) ? $overrides['mimes'] : false;
 
 	$test_upload = isset( $overrides['test_upload'] ) ? $overrides['test_upload'] : true;
 
@@ -153,15 +155,15 @@ function lp_import_handle_upload( $file, $overrides = array() ) {
 	// A correct MIME type will pass this test. Override $mimes or use the upload_mimes filter.
 	if ( $test_type ) {
 		//print_r($file);
-		$wp_filetype = wp_check_filetype_and_ext( $file['tmp_name'], $file['name'], $mimes );
-		$ext = empty( $wp_filetype['ext'] ) ? '' : $wp_filetype['ext'];
-		$type = empty( $wp_filetype['type'] ) ? '' : $wp_filetype['type'];
+		$wp_filetype     = wp_check_filetype_and_ext( $file['tmp_name'], $file['name'], $mimes );
+		$ext             = empty( $wp_filetype['ext'] ) ? '' : $wp_filetype['ext'];
+		$type            = empty( $wp_filetype['type'] ) ? '' : $wp_filetype['type'];
 		$proper_filename = empty( $wp_filetype['proper_filename'] ) ? '' : $wp_filetype['proper_filename'];
 		// Check to see if wp_check_filetype_and_ext() determined the filename was incorrect
 		if ( $proper_filename ) {
 			$file['name'] = $proper_filename;
 		}
-		if ( ( ! $type || !$ext ) && ! current_user_can( 'unfiltered_upload' ) ) {
+		if ( ( ! $type || ! $ext ) && ! current_user_can( 'unfiltered_upload' ) ) {
 			return call_user_func( $upload_error_handler, $file, __( 'Sorry, this file type is not permitted for security reasons.' ) );
 		}
 		if ( ! $type ) {
@@ -179,16 +181,14 @@ function lp_import_handle_upload( $file, $overrides = array() ) {
 		return call_user_func( $upload_error_handler, $file, $uploads['error'] );
 	}
 
-	if( $dir = lpie_mkdir( "learnpress/tmp" ) ) {
+	if ( $dir = lpie_mkdir( 'learnpress/tmp' ) ) {
 		$uploads['path'] = lpie_root_path() . '/' . $dir;
-		$uploads['url'] = lpie_root_url() . '/' . $dir;
+		$uploads['url']  = lpie_root_url() . '/' . $dir;
 	}
 	$filename = wp_unique_filename( $uploads['path'], $file['name'], $unique_filename_callback );
 
 	// Move the file to the uploads dir.
 	$new_file = $uploads['path'] . "/$filename";
-
-
 
 	if ( 'lpie_handle_upload' === $action ) {
 		$move_new_file = @ move_uploaded_file( $file['tmp_name'], $new_file );
@@ -197,10 +197,10 @@ function lp_import_handle_upload( $file, $overrides = array() ) {
 	}
 
 	if ( false === $move_new_file ) {
-		return $upload_error_handler( $file, sprintf( __('The uploaded file could not be moved' ) ) );
+		return $upload_error_handler( $file, sprintf( __( 'The uploaded file could not be moved' ) ) );
 	}
 
-	if( $fs = lpie_filesystem() ){
+	if ( $fs = lpie_filesystem() ) {
 		$fs->touch( $move_new_file );
 	}
 
@@ -230,9 +230,13 @@ function lp_import_handle_upload( $file, $overrides = array() ) {
 	 * }
 	 * @param string $context The type of upload action. Values include 'upload' or 'sideload'.
 	 */
-	return apply_filters( 'lpr_handle_upload', array(
-		'file' => $new_file,
-		'url'  => $url,
-		'type' => $type
-	), 'upload' );
+	return apply_filters(
+		'lpr_handle_upload',
+		array(
+			'file' => $new_file,
+			'url'  => $url,
+			'type' => $type,
+		),
+		'upload'
+	);
 }

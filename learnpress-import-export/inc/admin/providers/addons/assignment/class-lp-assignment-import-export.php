@@ -28,7 +28,6 @@ if ( ! class_exists( 'LP_Assignment_Import_Export' ) ) {
 			add_filter( 'learn-press/import/postdata', array( $this, 'lpie_add_export_item_assingment' ), 10, 2 );
 			// update attachment assignment
 			add_action( 'learn-press/import/process-type', array( $this, 'lpie_update_attachment_assingment' ), 15, 2 );
-
 		}
 
 		/**
@@ -104,8 +103,8 @@ if ( ! class_exists( 'LP_Assignment_Import_Export' ) ) {
 
 				foreach ( $wp->attachment_assingment as $attachment_value ) {
 					if ( ! empty( $attachment_value ) ) {
-						$attr = $attachment_value->attributes();
-						$id   = (int) $attr['id'];
+						$attr       = $attachment_value->attributes();
+						$id         = (int) $attr['id'];
 						$value_item = array();
 						foreach ( $attachment_value as $att_url ) {
 							$value_item [] = ( (array) $att_url )[0];
@@ -206,7 +205,6 @@ if ( ! class_exists( 'LP_Assignment_Import_Export' ) ) {
 			}
 			return self::$instance;
 		}
-
 	}
 }
 

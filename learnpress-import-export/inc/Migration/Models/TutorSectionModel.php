@@ -11,7 +11,7 @@ class TutorSectionModel {
         FROM {$wpdb->posts}
         WHERE post_type = %s AND post_status=%s",
 			LP_ADDON_IMPORT_EXPORT_TUTOR_TOPIC_CPT,
-			     'publish'
+			'publish'
 		);
 
 		$total = $wpdb->get_var( $sql );

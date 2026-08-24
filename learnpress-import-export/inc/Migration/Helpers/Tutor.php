@@ -41,15 +41,15 @@ class Tutor {
 	}
 
 	public static function migrated_lesson_total() {
-		return count( self::migrated_lesson() ) ;
+		return count( self::migrated_lesson() );
 	}
 
 	public static function migrated_quiz_total() {
-		return count( self::migrated_quiz() ) ;
+		return count( self::migrated_quiz() );
 	}
 
 	public static function migrated_assignment_total() {
-		return count( self::migrated_assignment() ) ;
+		return count( self::migrated_assignment() );
 	}
 
 	public static function migrated_course_item_total() {
@@ -80,7 +80,7 @@ class Tutor {
 		$data['migrated_course_item_total'] = self::migrated_course_item_total();
 
 		$data['question_total']          = TutorQuestionModel::get_question_total();
-		$data['migrated_question'] = self::migrated_question();
+		$data['migrated_question']       = self::migrated_question();
 		$data['migrated_question_total'] = self::migrated_question_total();
 
 		$data['tutor_migrate_time']    = get_option( 'tutor_migrate_time', 0 );

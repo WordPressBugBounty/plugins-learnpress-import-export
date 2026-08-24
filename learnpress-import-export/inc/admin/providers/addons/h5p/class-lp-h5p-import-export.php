@@ -40,19 +40,19 @@ if ( ! class_exists( 'LP_H5P_Import_Export' ) ) {
 
 			foreach ( $item_ids as $item_id ) {
 				if ( get_post_type( $item_id ) == 'lp_h5p' ) {
-					$h5p_id        = get_post_meta( $item_id, '_lp_h5p_interact', true );
+					$h5p_id = get_post_meta( $item_id, '_lp_h5p_interact', true );
 					if ( ! $h5p_id ) {
 						continue;
 					}
 					$passing_grade = get_post_meta( $item_id, '_lp_passing_grade', true );
 					//new h5p
 					$plugin      = H5P_Plugin::get_instance();
-					$content_h5p = $plugin->get_content($h5p_id);
+					$content_h5p = $plugin->get_content( $h5p_id );
 					if ( ! $content_h5p ) {
 						continue;
 					}
-					$export      = get_option('h5p_export', TRUE) ? $plugin->get_h5p_url() . '/exports/' . ($content_h5p['slug'] ? $content_h5p['slug'] . '-' : '') . $content_h5p['id'] . '.h5p' : '';
-					$url         = home_url() . $export;
+					$export = get_option( 'h5p_export', true ) ? $plugin->get_h5p_url() . '/exports/' . ( $content_h5p['slug'] ? $content_h5p['slug'] . '-' : '' ) . $content_h5p['id'] . '.h5p' : '';
+					$url    = home_url() . $export;
 
 					?>
 					<wp:h5p_content id = "<?php echo $item_id; ?>">
@@ -79,8 +79,8 @@ if ( ! class_exists( 'LP_H5P_Import_Export' ) ) {
 			if ( isset( $wp->h5p_content ) ) {
 				foreach ( $wp->h5p_content as $h5p_value ) {
 					if ( ! empty( $h5p_value ) ) {
-						$attr = $h5p_value->attributes();
-						$id   = (int) $attr['id'];
+						$attr             = $h5p_value->attributes();
+						$id               = (int) $attr['id'];
 						$data_item[ $id ] = array(
 							'url'           => (string) $h5p_value->h5p_url,
 							'passing_grade' => (int) $h5p_value->h5p_passing_grade,
@@ -89,7 +89,7 @@ if ( ! class_exists( 'LP_H5P_Import_Export' ) ) {
 					}
 				}
 			}
-			$post['custom'][ 'lp_h5p' ] = $data_item;
+			$post['custom']['lp_h5p'] = $data_item;
 			return $post;
 		}
 
@@ -98,8 +98,8 @@ if ( ! class_exists( 'LP_H5P_Import_Export' ) ) {
 				return;
 			}
 
-			if ( ! empty( $post_old['custom'][ 'lp_h5p' ] ) ) {
-				$data_h5p_old  = $post_old['custom'][ 'lp_h5p' ];
+			if ( ! empty( $post_old['custom']['lp_h5p'] ) ) {
+				$data_h5p_old = $post_old['custom']['lp_h5p'];
 				$data_h5p_new = array();
 				foreach ( $processed_posts as $id_item_old => $id_item_new ) {
 					if ( array_key_exists( $id_item_old, $data_h5p_old ) ) {
@@ -108,7 +108,7 @@ if ( ! class_exists( 'LP_H5P_Import_Export' ) ) {
 				}
 
 				if ( ! empty( $data_h5p_new ) ) {
-					foreach($data_h5p_new as $id_new => $value ){
+					foreach ( $data_h5p_new as $id_new => $value ) {
 						$passing_grade = $value['passing_grade'];
 						$url           = $value['url'];
 						$h5p_id        = $value['h5p_id'];
@@ -126,83 +126,81 @@ if ( ! class_exists( 'LP_H5P_Import_Export' ) ) {
 			$plugin = H5P_Plugin::get_instance();
 			$slug   = $plugin->get_plugin_slug();
 
-			$core = $plugin->get_h5p_instance('core');
+			$core = $plugin->get_h5p_instance( 'core' );
 			// Keep track of the old library and params
-			$oldLibrary = NULL;
-			$oldParams = NULL;
-			if ($content !== NULL) {
+			$oldLibrary = null;
+			$oldParams  = null;
+			if ( $content !== null ) {
 				$oldLibrary = $content['library'];
-				$oldParams = json_decode($content['params']);
-			}
-			else {
+				$oldParams  = json_decode( $content['params'] );
+			} else {
 				$content = array(
-					'disable' => H5PCore::DISABLE_NONE
+					'disable' => H5PCore::DISABLE_NONE,
 				);
 			}
-		
+
 			// Get library
-			$content['library'] = $core->libraryFromString( filter_input(INPUT_POST, 'library') );
-			if (!$content['library']) {
-				$core->h5pF->setErrorMessage(__('Invalid library.', $slug));
-				return FALSE;
+			$content['library'] = $core->libraryFromString( filter_input( INPUT_POST, 'library' ) );
+			if ( ! $content['library'] ) {
+				$core->h5pF->setErrorMessage( __( 'Invalid library.', $slug ) );
+				return false;
 			}
-			if ( $core->h5pF->libraryHasUpgrade($content['library'])) {
-				$core->h5pF->setErrorMessage(__('Something unexpected happened. We were unable to save this content.', $slug));
-				return FALSE;
+			if ( $core->h5pF->libraryHasUpgrade( $content['library'] ) ) {
+				$core->h5pF->setErrorMessage( __( 'Something unexpected happened. We were unable to save this content.', $slug ) );
+				return false;
 			}
-		
+
 			// Check if library exists.
-			$content['library']['libraryId'] = $core->h5pF->getLibraryId($content['library']['machineName'], $content['library']['majorVersion'], $content['library']['minorVersion']);
-			if (! $content['library']['libraryId'] ) {
-				$core->h5pF->setErrorMessage(__('No such library.', $slug));
-				return FALSE;
+			$content['library']['libraryId'] = $core->h5pF->getLibraryId( $content['library']['machineName'], $content['library']['majorVersion'], $content['library']['minorVersion'] );
+			if ( ! $content['library']['libraryId'] ) {
+				$core->h5pF->setErrorMessage( __( 'No such library.', $slug ) );
+				return false;
 			}
-		
+
 			// Check parameters
-			$content['params'] = filter_input(INPUT_POST, 'parameters');
-			if ( $content['params'] === NULL) {
-				return FALSE;
+			$content['params'] = filter_input( INPUT_POST, 'parameters' );
+			if ( $content['params'] === null ) {
+				return false;
 			}
-			$params = json_decode($content['params']);
-			if ($params === NULL) {
-				$core->h5pF->setErrorMessage(__('Invalid parameters.', $slug));
-				return FALSE;
+			$params = json_decode( $content['params'] );
+			if ( $params === null ) {
+				$core->h5pF->setErrorMessage( __( 'Invalid parameters.', $slug ) );
+				return false;
 			}
-		
-			$content['params'] = json_encode($params->params);
+
+			$content['params']   = json_encode( $params->params );
 			$content['metadata'] = $params->metadata;
-		
+
 			// Trim title and check length
-			$trimmed_title = empty($content['metadata']->title) ? '' : trim($content['metadata']->title);
-			if ($trimmed_title === '') {
-				H5P_Plugin_Admin::set_error(sprintf(__('Missing %s.', $slug), 'title'));
-				return FALSE;
+			$trimmed_title = empty( $content['metadata']->title ) ? '' : trim( $content['metadata']->title );
+			if ( $trimmed_title === '' ) {
+				H5P_Plugin_Admin::set_error( sprintf( __( 'Missing %s.', $slug ), 'title' ) );
+				return false;
 			}
-		
-			if (strlen($trimmed_title) > 255) {
-				H5P_Plugin_Admin::set_error(__('Title is too long. Must be 256 letters or shorter.', $slug));
-				return FALSE;
+
+			if ( strlen( $trimmed_title ) > 255 ) {
+				H5P_Plugin_Admin::set_error( __( 'Title is too long. Must be 256 letters or shorter.', $slug ) );
+				return false;
 			}
-		
+
 			// Set disabled features
 			// $this->get_disabled_content_features($core, $content);
-		
+
 			try {
 				// Save new content
-				$content['id'] = $core->saveContent($content);
-			}
-			catch (Exception $e) {
-				H5P_Plugin_Admin::set_error($e->getMessage());
+				$content['id'] = $core->saveContent( $content );
+			} catch ( Exception $e ) {
+				H5P_Plugin_Admin::set_error( $e->getMessage() );
 				return;
 			}
-		
+
 			// Move images and find all content dependencies
-			$editor =  new H5peditor(
-				$plugin->get_h5p_instance('core'),
+			$editor = new H5peditor(
+				$plugin->get_h5p_instance( 'core' ),
 				new H5PEditorWordPressStorage(),
 				new H5PEditorWordPressAjax()
 			);
-			$editor->processParameters($content['id'], $content['library'], $params->params, $oldLibrary, $oldParams);
+			$editor->processParameters( $content['id'], $content['library'], $params->params, $oldLibrary, $oldParams );
 
 			update_post_meta( $id_new, '_lp_h5p_interact', $content['id'] );
 		}

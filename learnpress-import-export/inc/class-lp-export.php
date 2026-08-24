@@ -44,7 +44,6 @@ if ( ! class_exists( 'LP_Export' ) ) {
 
 			return $class;
 		}
-
 	}
 }
 

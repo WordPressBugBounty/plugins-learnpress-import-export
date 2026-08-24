@@ -2,8 +2,8 @@
 Contributors: thimpress, tunnhn, kendy73, leehld
 Donate link:
 Tags: learnpress, e-learning, learning management system, import/export
-Tested up to: 7.0
-Stable tag: 4.1.5
+Tested up to: 7.1
+Stable tag: 4.1.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,6 +81,10 @@ Check out <a href="http://docs.thimpress.com/learnpress" target="_blank">LearnPr
 1. LearnPress Export Import screenshot.
 
 == Changelog ==
+
+= 4.1.6 (2026-08-24) =
+~ Fixed: security.
+~ Fixed: fatal error.
 
 = 4.1.5 (2026-05-25) =
 ~ Fixed: security.

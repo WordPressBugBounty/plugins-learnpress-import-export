@@ -11,33 +11,36 @@ use LPImportExport\Migration\Helpers\Tutor;
 use LPImportExport\Migration\Models\TutorCourseItemModel;
 use LPImportExport\Migration\Models\TutorCourseModel;
 use LPImportExport\Migration\Models\TutorSectionModel;
+use WPEMS\Models\UserModel;
 
 class AdminMenuController {
-	private $config;
 	private $active_plugins;
 
 	public function __construct() {
 		$this->active_plugins = Config::instance()->get( 'migration-plugin' );
-		$this->config         = Config::instance()->get( 'migration' );
-		add_action( 'admin_menu', array( $this, 'register' ), 9999 );
+		add_filter( 'learn-press/wp-menus', array( $this, 'register' ) );
 	}
 
 	/**
-	 * @return void
+	 * @param array $menu_items
+	 *
+	 * @return array
 	 */
-	public function register() {
+	public function register( array $menu_items = array() ): array {
 		if ( empty( count( $this->active_plugins ) ) ) {
-			return;
+			return $menu_items;
 		}
 
-		add_submenu_page(
-			$this->config['parent_slug'],
-			$this->config['page_title'],
-			$this->config['menu_title'],
-			$this->config['capability'],
-			$this->config['slug'],
-			array( $this, 'migration_tool' )
+		$menu_items['migration-tool'] = array(
+			'id'         => 'lp-migration-tool',
+			'menu_title' => esc_html__( 'Migration Tool', 'learnpress-import-export' ),
+			'page_title' => esc_html__( 'Migration Tool', 'learnpress-import-export' ),
+			'capability' => UserModel::ROLE_ADMINISTRATOR,
+			'priority'   => 10,
+			'callback'   => array( $this, 'migration_tool' ),
 		);
+
+		return $menu_items;
 	}
 
 	/**
@@ -58,7 +61,7 @@ class AdminMenuController {
 				$data = array_merge( $data, Tutor::get_data() );
 			} elseif ( $current_plugin['name'] === 'learndash' ) {
 				$data = array_merge( $data, \LPImportExport\LearnDashMigration\LearnDashHelper::get_data() );
-			}elseif($current_plugin['name'] === 'master_study'){
+			} elseif ( $current_plugin['name'] === 'master_study' ) {
 				$data = array_merge( $data, MasterStudy::get_data() );
 			}
 		}

@@ -72,8 +72,8 @@ if ( ! class_exists( 'LP_Import_User_LearnPress' ) ) {
 		public function __construct() {
 
 			add_action( 'lpie_import_form', array( $this, 'add_form' ), 10, 1 );
-			
-			if ( ! empty( LP_Request::get_param('lpie_import_user_data') ) ) {
+
+			if ( ! empty( LP_Request::get_param( 'lpie_import_user_data' ) ) ) {
 				add_action( 'lpie_import_user_step_1', array( $this, 'step_1' ) );
 				add_action( 'lpie_import_user_step_2', array( $this, 'step_2' ) );
 				add_action( 'lpie_import_user_step_3', array( $this, 'step_3' ) );
@@ -82,12 +82,11 @@ if ( ! class_exists( 'LP_Import_User_LearnPress' ) ) {
 			add_action( 'lpie_import_user_from_server', array( $this, 'import_form_server_view' ) );
 
 			require_once LP_ADDON_IMPORT_EXPORT_INC . 'admin/providers/learnpress/lp-import-functions.php';
-
 		}
 
 		public function add_form( $step ) {
 			$args = array(
-				'step' => $step
+				'step' => $step,
 			);
 			lpie_admin_view( 'learnpress/import-user/form-import', $args );
 		}
@@ -125,9 +124,9 @@ if ( ! class_exists( 'LP_Import_User_LearnPress' ) ) {
 			// Safe relative path used in the nonce URL (never the raw input).
 			$safe_relative = $subdir . $safe_name;
 			?>
-            <h2><strong><?php _e( 'Course(s) found on this file', 'learnpress-import-export' ); ?></strong>
-                (<?php echo esc_html( $safe_name ); ?>):</h2>
-            <table class="wp-list-table widefat fixed striped">
+			<h2><strong><?php _e( 'Course(s) found on this file', 'learnpress-import-export' ); ?></strong>
+				(<?php echo esc_html( $safe_name ); ?>):</h2>
+			<table class="wp-list-table widefat fixed striped">
 				<?php
 				$file_data = $this->parse( $target );
 				$courses   = $file_data['posts'];
@@ -137,13 +136,13 @@ if ( ! class_exists( 'LP_Import_User_LearnPress' ) ) {
 					}
 				}
 				?>
-            </table>
-            <p>
-                <a href="<?php echo wp_nonce_url( admin_url( 'admin.php?page=learnpress-import-export&tab=import&import-user-file=' . rawurlencode( $safe_relative ) . '&step=3' ), 'learnpress-import-export', 'import-nonce' ); ?>"
-                   class="button button-primary button-large"><?php _e( 'Confirm Import', 'learnpress-import-export' ); ?></a>
-                <a href="<?php echo admin_url( 'admin.php?page=learnpress-import-export&tab=import' ); ?>"
-                   class="button button-large"><?php _e( 'Cancel', 'learnpress-import-export' ); ?></a>
-            </p>
+			</table>
+			<p>
+				<a href="<?php echo wp_nonce_url( admin_url( 'admin.php?page=learnpress-import-export&tab=import&import-user-file=' . rawurlencode( $safe_relative ) . '&step=3' ), 'learnpress-import-export', 'import-nonce' ); ?>"
+					class="button button-primary button-large"><?php _e( 'Confirm Import', 'learnpress-import-export' ); ?></a>
+				<a href="<?php echo admin_url( 'admin.php?page=learnpress-import-export&tab=import' ); ?>"
+					class="button button-large"><?php _e( 'Cancel', 'learnpress-import-export' ); ?></a>
+			</p>
 			<?php
 		}
 
@@ -180,7 +179,7 @@ if ( ! class_exists( 'LP_Import_User_LearnPress' ) ) {
 			$arrResult = array();
 
 			// --- Patch A: Sanitize path to prevent path-traversal (CVE import-user-file) ---
-			$raw_file  = LP_Request::get_param( 'import-user-file' );
+			$raw_file = LP_Request::get_param( 'import-user-file' );
 			// Allow only a single-level tmp/ prefix; strip everything else.
 			$subdir    = ( strpos( $raw_file, 'tmp/' ) === 0 ) ? 'tmp/' : '';
 			$safe_file = sanitize_file_name( basename( $raw_file ) );
@@ -195,14 +194,14 @@ if ( ! class_exists( 'LP_Import_User_LearnPress' ) ) {
 			$handle    = fopen( $full_path, 'r' );
 			$delimiter = $this->detectDelimiter( $full_path );
 
-			while( ($data_csv = fgetcsv($handle, 1000, $delimiter ) ) !== FALSE ) {
+			while ( ( $data_csv = fgetcsv( $handle, 1000, $delimiter ) ) !== false ) {
 				$arrResult[] = $data_csv;
 			}
 
 			if ( ! empty( $arrResult ) ) {
 				$data_import_order = array();
 
-				foreach( $arrResult as $key => $user ) {
+				foreach ( $arrResult as $key => $user ) {
 					if ( $key > 0 ) {
 						//create user
 						$userdata = array(
@@ -211,13 +210,13 @@ if ( ! class_exists( 'LP_Import_User_LearnPress' ) ) {
 							'user_email' => $user[2],
 							'first_name' => $user[3],
 							'last_name'  => $user[4],
-							'role'       => $user[5] ?: 'subscriber'
+							'role'       => $user[5] ?: 'subscriber',
 						);
-						$user_id = wp_insert_user( $userdata );
-						if ( ! is_wp_error ( $user_id) ) {
+						$user_id  = wp_insert_user( $userdata );
+						if ( ! is_wp_error( $user_id ) ) {
 							if ( ! empty( $user[6] ) ) {
-								$courses_id = explode( ' ', $user[6] );
-								$data_import_order[$user_id] = $courses_id;
+								$courses_id                    = explode( ' ', $user[6] );
+								$data_import_order[ $user_id ] = $courses_id;
 							}
 							$GLOBALS['is_imported_done'] = true;
 						}
@@ -235,40 +234,38 @@ if ( ! class_exists( 'LP_Import_User_LearnPress' ) ) {
 				// $full_path and $safe_file are already validated above.
 				copy( $full_path, lpie_import_path() . '/' . $safe_file );
 			}
-
 		}
 
-		public function detectDelimiter($csvFile)
-		{
+		public function detectDelimiter( $csvFile ) {
 			$delimiters = array(
 				';' => 0,
 				',' => 0,
 				"\t" => 0,
-				"|" => 0
+				'|' => 0,
 			);
 
-			$handle = fopen($csvFile, "r");
-			$firstLine = fgets($handle);
-			fclose($handle); 
-			foreach ($delimiters as $delimiter => &$count) {
-				$count = count(str_getcsv($firstLine, $delimiter));
+			$handle    = fopen( $csvFile, 'r' );
+			$firstLine = fgets( $handle );
+			fclose( $handle );
+			foreach ( $delimiters as $delimiter => &$count ) {
+				$count = count( str_getcsv( $firstLine, $delimiter ) );
 			}
 
-			return array_search(max($delimiters), $delimiters);
+			return array_search( max( $delimiters ), $delimiters );
 		}
 
-		public function create_order( $data_import_order ){
+		public function create_order( $data_import_order ) {
 			$total = count( $data_import_order );
 			$limit = 10;
-			
+
 			$bg = LP_Background_Single_Import_Export::instance();
-			$bg->data( 
+			$bg->data(
 				array(
 					'handle_name'       => 'create_order',
 					'data_import_order' => $data_import_order,
 					'offset'            => 0,
 					'limit'             => $limit,
-					'total_page' 		=> ceil( $total / $limit )
+					'total_page'        => ceil( $total / $limit ),
 				)
 			)->dispatch();
 		}

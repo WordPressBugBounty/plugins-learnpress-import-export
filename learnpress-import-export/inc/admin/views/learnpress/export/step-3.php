@@ -29,9 +29,9 @@ $courses = LP_Request::get_param( 'courses', [], 'key' );
 	<input type="hidden" name="step" value="<?php echo esc_attr( LP_Request::get_param( 'step' ) ); ?>"/>
 	<input type="hidden" name="exporter" value="<?php echo esc_attr( LP_Request::get_param( 'exporter' ) ); ?>"/>
 	<input type="hidden" name="download_export"
-		   value="<?php echo esc_attr( LP_Request::get_param( 'download_export' ) ); ?>"/>
+			value="<?php echo esc_attr( LP_Request::get_param( 'download_export' ) ); ?>"/>
 	<input type="hidden" name="learn-press-export-file-name"
-		   value="<?php echo esc_attr( LP_Request::get_param( 'learn-press-export-file-name' ) ); ?>"/>
+			value="<?php echo esc_attr( LP_Request::get_param( 'learn-press-export-file-name' ) ); ?>"/>
 	<p>
 		<button class="button button-primary" id="lpie-button-cancel">
 			<?php _e( 'Export new', 'learnpress-import-export' ); ?></button>
@@ -39,9 +39,10 @@ $courses = LP_Request::get_param( 'courses', [], 'key' );
 			<?php _e( 'Export again!', 'learnpress-import-export' ); ?></button>
 	</p>
 </div>
-<?php if ( ! empty( $data['download_url'] ) ) {
+<?php
+if ( ! empty( $data['download_url'] ) ) {
 	if ( empty( $data['download_nonce'] )
-		 || ! wp_verify_nonce( $data['download_nonce'], 'lpie-download-file' ) ) {
+		|| ! wp_verify_nonce( $data['download_nonce'], 'lpie-download-file' ) ) {
 		return;
 	}
 
@@ -49,14 +50,14 @@ $courses = LP_Request::get_param( 'courses', [], 'key' );
 		array(
 			'download-file' => $data['download_url'],
 			'alias'         => $data['download_alias'],
-			'nonce'         => $data['download_nonce']
+			'nonce'         => $data['download_nonce'],
 		),
 		admin_url( 'admin.php?page=learnpress-import-export' )
 	);
 	?>
 	<script type="text/javascript">
 		typeof jQuery !== 'undefined' && jQuery(function ($) {
-			window.location.href = '<?php echo esc_url_raw( $link ) ?>';
+			window.location.href = '<?php echo esc_url_raw( $link ); ?>';
 		})
 	</script>
 <?php } ?>

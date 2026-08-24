@@ -14,20 +14,20 @@ if ( ! class_exists( 'LP_Background_Single_Import_Export' ) ) {
 	class LP_Background_Single_Import_Export extends LP_Async_Request {
 		protected $action = 'background_single_import_export';
 
-		protected $offset = 0;
-		protected $limit  = 0;
-		protected $total_page  = 0;
+		protected $offset            = 0;
+		protected $limit             = 0;
+		protected $total_page        = 0;
 		protected $data_import_order = [];
 
 		protected static $instance;
 
-		
+
 		protected function handle() {
 			try {
 				$handle_name             = LP_Helper::sanitize_params_submitted( $_POST['handle_name'] ?? '' );
 				$this->data_import_order = LP_Helper::sanitize_params_submitted( $_POST['data_import_order'] ?? [] );
 				$this->offset            = LP_Helper::sanitize_params_submitted( $_POST['offset'] ?? 0 );
-				$this->limit	         = LP_Helper::sanitize_params_submitted( $_POST['limit'] ?? 0 );
+				$this->limit             = LP_Helper::sanitize_params_submitted( $_POST['limit'] ?? 0 );
 				$this->total_page        = LP_Helper::sanitize_params_submitted( $_POST['total_page'] ?? 0 );
 
 				if ( empty( $handle_name ) ) {
@@ -36,7 +36,7 @@ if ( ! class_exists( 'LP_Background_Single_Import_Export' ) ) {
 
 				switch ( $handle_name ) {
 					case 'create_order':
-						$data_import_order = array_slice( $this->data_import_order, $this->offset, $this->limit, true);
+						$data_import_order = array_slice( $this->data_import_order, $this->offset, $this->limit, true );
 						$this->create_order( $data_import_order );
 						break;
 					default:
@@ -53,12 +53,12 @@ if ( ! class_exists( 'LP_Background_Single_Import_Export' ) ) {
 		 * @throws Exception
 		 */
 		protected function create_order( $data_import_order ) {
-			$this->offset++;
-			try{
+			++$this->offset;
+			try {
 				$order_total    = 0;
 				$order_subtotal = 0;
 
-				foreach( $data_import_order as $user_id => $courses_id ) {
+				foreach ( $data_import_order as $user_id => $courses_id ) {
 					if ( ! empty( $courses_id ) ) {
 						$order_data = array(
 							'post_author' => $user_id,
@@ -76,15 +76,15 @@ if ( ! class_exists( 'LP_Background_Single_Import_Export' ) ) {
 								'user_note'             => '',
 							),
 						);
-		
+
 						$lp_order_id = wp_insert_post( $order_data );
-		
+
 						if ( is_wp_error( $lp_order_id ) ) {
 							throw new Exception( __( 'Can not create order', 'learnpress-import-export' ) );
 						}
-		
+
 						$lp_order = learn_press_get_order( $lp_order_id );
-		
+
 						foreach ( $courses_id as $id ) {
 							$course = learn_press_get_course( $id );
 							if ( ! $course ) {
@@ -93,10 +93,10 @@ if ( ! class_exists( 'LP_Background_Single_Import_Export' ) ) {
 							//using set to order
 							$order_total    += floatval( $course->get_price() );
 							$order_subtotal += floatval( $course->get_price() );
-		
+
 							$item_total    = floatval( $course->get_price() );
 							$item_subtotal = floatval( $course->get_price() );
-		
+
 							$item = array(
 								'item_id'         => $id,
 								'order_item_name' => get_the_title( $id ),
@@ -107,30 +107,29 @@ if ( ! class_exists( 'LP_Background_Single_Import_Export' ) ) {
 						}
 
 						//set meta key order
-						$lp_order->set_total( ! empty( $order_total ) ? $order_total : $order_subtotal);
+						$lp_order->set_total( ! empty( $order_total ) ? $order_total : $order_subtotal );
 						$lp_order->set_subtotal( $order_subtotal );
 						$lp_order->set_status( 'lp-completed' );
 						$lp_order->save();
 					}
-					
 				}
 
-				if( $this->offset < $this->total_page ) {
-					$this->data( array(
-						'handle_name'       => 'create_order',
-						'data_import_order' => $this->data_import_order,
-						'offset'            => $this->offset,
-						'limit'             => $this->limit,
-						'total_page'        => $this->total_page,
-					) )->dispatch();
+				if ( $this->offset < $this->total_page ) {
+					$this->data(
+						array(
+							'handle_name'       => 'create_order',
+							'data_import_order' => $this->data_import_order,
+							'offset'            => $this->offset,
+							'limit'             => $this->limit,
+							'total_page'        => $this->total_page,
+						)
+					)->dispatch();
 				}
-
-			} catch (Throwable $e) {
-				error_log($e->getMessage());
+			} catch ( Throwable $e ) {
+				error_log( $e->getMessage() );
 			}
-			
 		}
-	
+
 		/**
 		 * @return LP_Background_Single_Import_Export
 		 */

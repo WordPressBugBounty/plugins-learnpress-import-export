@@ -69,7 +69,8 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 		 * Hook into actions and filters.
 		 */
 		protected function hooks() {
-			add_action( 'learn-press/admin/menu-items', array( $this, 'admin_menu' ) );
+			add_filter( 'learn-press/wp-menus', array( $this, 'admin_menu' ) );
+			add_filter( 'learn-press/wp-admin/menu-group', array( $this, 'admin_menu_group' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
 			add_action( 'admin_init', array( $this, 'do_action' ) );
 
@@ -84,9 +85,29 @@ if ( ! class_exists( 'LP_Addon_Import_Export' ) ) {
 		 * Add admin menu.
 		 */
 		public function admin_menu( $menu_items = array() ) {
-			$menu_items['import-export'] = include_once LP_ADDON_IMPORT_EXPORT_PATH . '/views/admin/sub-menus/class-lp-submenu-import-export.php';
+			$menu_items['import-export'] = array(
+				'id'         => 'learnpress-import-export',
+				'menu_title' => __( 'Import/Export', 'learnpress-import-export' ),
+				'page_title' => __( 'Import/Export', 'learnpress-import-export' ),
+				'capability' => 'manage_options',
+				'priority'   => 30,
+				'callback'   => array( 'LP_Addon_Import_Export', 'admin_page' ),
+			);
 
 			return $menu_items;
+		}
+
+		/**
+		 * Add import/export menu to operations group.
+		 *
+		 * @param $group_menus
+		 * @return array
+		 */
+		public function admin_menu_group( $group_menus ): array {
+			$group_menus['operations']['import-export']  = 'learnpress-import-export';
+			$group_menus['operations']['migration-tool'] = 'lp-migration-tool';
+
+			return $group_menus;
 		}
 
 		/**

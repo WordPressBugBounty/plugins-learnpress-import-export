@@ -57,7 +57,7 @@ class TutorQuizModel {
 	 *
 	 * @return array|object|\stdClass[]|null
 	 */
-	public static function get_quiz_attempts($quiz_id, $user_id) {
+	public static function get_quiz_attempts( $quiz_id, $user_id ) {
 		global $wpdb;
 		return $wpdb->get_results(
 			$wpdb->prepare(
@@ -78,7 +78,7 @@ class TutorQuizModel {
 	 *
 	 * @return array|object|\stdClass[]|null
 	 */
-	public static function get_quiz_attempt_answers($quiz_attempt_id) {
+	public static function get_quiz_attempt_answers( $quiz_attempt_id ) {
 		global $wpdb;
 		return $wpdb->get_results(
 			$wpdb->prepare(

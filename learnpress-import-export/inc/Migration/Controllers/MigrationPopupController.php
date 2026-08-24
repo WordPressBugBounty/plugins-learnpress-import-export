@@ -26,7 +26,7 @@ class MigrationPopupController {
 		$popups = array(
 			'before-migrate-popup.php',
 			'clear-migrated-data-popup',
-			'migrate-success-popup'
+			'migrate-success-popup',
 		);
 
 		$template = Template::instance();

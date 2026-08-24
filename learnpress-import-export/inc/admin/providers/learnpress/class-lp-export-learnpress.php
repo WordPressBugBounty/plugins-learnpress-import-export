@@ -94,17 +94,19 @@ if ( ! class_exists( 'LP_Export_LearnPress_Provider' ) ) {
 		public function do_export() {
 			global $wpdb, $post;
 
-			$all_courses = LP_Request::get_param('courses', [], 'key' );
+			$all_courses = LP_Request::get_param( 'courses', [], 'key' );
 			if ( empty( $all_courses ) ) {
 				return false;
 			}
 
-			$all_courses_str = esc_sql( join( ",", $all_courses ) );
+			$all_courses_str = esc_sql( join( ',', $all_courses ) );
 			$courses         = $wpdb->get_results(
-				$wpdb->prepare( " SELECT * FROM {$wpdb->posts}
-						WHERE ID IN(" . $all_courses_str . ")
-						AND post_type = %s",
-					LP_COURSE_CPT )
+				$wpdb->prepare(
+					" SELECT * FROM {$wpdb->posts}
+						WHERE ID IN(" . $all_courses_str . ')
+						AND post_type = %s',
+					LP_COURSE_CPT
+				)
 			);
 
 			ob_start();
@@ -114,13 +116,15 @@ if ( ! class_exists( 'LP_Export_LearnPress_Provider' ) ) {
 
 				// import course's items
 				$course_items = $wpdb->get_results(
-					$wpdb->prepare( "
+					$wpdb->prepare(
+						"
 						SELECT c.ID, p.* FROM {$wpdb->prefix}learnpress_sections s
 						INNER JOIN {$wpdb->prefix}learnpress_section_items si ON si.section_id = s.section_id
 						INNER JOIN {$wpdb->prefix}posts p ON si.item_id = p.ID
 						INNER JOIN {$wpdb->prefix}posts c ON c.ID = s.section_course_id
 						WHERE c.ID = %d
-						ORDER BY s.section_order, si.item_order", $post->ID 
+						ORDER BY s.section_order, si.item_order",
+						$post->ID
 					)
 				);
 				if ( $course_items ) {
@@ -148,11 +152,14 @@ if ( ! class_exists( 'LP_Export_LearnPress_Provider' ) ) {
 			require LP_ADDON_IMPORT_EXPORT_INC . 'admin/providers/learnpress/xml/lp-export-item.php';
 
 			if ( $post->post_type == 'lp_quiz' ) {
-				$query     = $wpdb->prepare( "
+				$query     = $wpdb->prepare(
+					"
 				SELECT q.*, qq.* FROM {$wpdb->posts} q
 				INNER JOIN {$wpdb->prefix}learnpress_quiz_questions qq ON q.ID = qq.question_id
 				WHERE quiz_id = %d
-			", $post->ID );
+			",
+					$post->ID
+				);
 				$questions = $wpdb->get_results( $query );
 				if ( $questions ) {
 					foreach ( $questions as $question ) {
@@ -279,7 +286,7 @@ if ( ! class_exists( 'LP_Export_LearnPress_Provider' ) ) {
 			$is_teacher = false;
 			if ( in_array( 'administrator', $roles ) || ( $is_teacher = in_array( $teacher_role, $roles ) ) ) {
 				if ( $is_teacher ) {
-					$query .= $wpdb->prepare( " AND post_author = %d", $user->ID );
+					$query .= $wpdb->prepare( ' AND post_author = %d', $user->ID );
 				}
 			}
 

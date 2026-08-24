@@ -154,9 +154,9 @@ class LearnDashMigrationController {
 		$migrator = new LearnDashToLearnPressMigration();
 
 		foreach ( $courses as $course ) {
-			$ld_course             = $dumper->get_course_data( $course );
-			$ld_course['lessons']  = $dumper->dump_lessons( $course->ID );
-			$ld_course['quizzes']  = $dumper->dump_quizzes( $course->ID, 'course' );
+			$ld_course            = $dumper->get_course_data( $course );
+			$ld_course['lessons'] = $dumper->dump_lessons( $course->ID );
+			$ld_course['quizzes'] = $dumper->dump_quizzes( $course->ID, 'course' );
 
 			$migrator->migrate_course( $ld_course );
 		}

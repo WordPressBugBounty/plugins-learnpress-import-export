@@ -21,8 +21,15 @@ defined( 'ABSPATH' ) || exit;
  * @return string
  */
 function wxr_cdata( $str ) {
-	if ( wp_is_valid_utf8( $str ) == false )
-		$str = utf8_encode( $str );
+	$str = (string) $str;
+
+	if ( ! function_exists( 'wp_is_valid_utf8' ) || wp_is_valid_utf8( $str ) == false ) {
+		if ( function_exists( 'mb_convert_encoding' ) ) {
+			$str = mb_convert_encoding( $str, 'UTF-8', 'ISO-8859-1' );
+		} elseif ( function_exists( 'utf8_encode' ) ) {
+			$str = utf8_encode( $str );
+		}
+	}
 
 	// $str = ent2ncr(esc_html($str));
 	$str = '<![CDATA[' . str_replace( ']]>', ']]]]><![CDATA[>', $str ) . ']]>';
@@ -39,11 +46,13 @@ function wxr_cdata( $str ) {
  */
 function wxr_site_url() {
 	// Multisite: the base URL.
-	if ( is_multisite() )
+	if ( is_multisite() ) {
 		return network_home_url();
+	}
 	// WordPress (single site): the blog URL.
-	else
+	else {
 		return get_bloginfo_rss( 'url' );
+	}
 }
 
 /**
@@ -54,8 +63,9 @@ function wxr_site_url() {
  * @param object $category Category Object
  */
 function wxr_cat_name( $category ) {
-	if ( empty( $category->name ) )
+	if ( empty( $category->name ) ) {
 		return;
+	}
 
 	echo '<wp:cat_name>' . wxr_cdata( $category->name ) . '</wp:cat_name>';
 }
@@ -68,8 +78,9 @@ function wxr_cat_name( $category ) {
  * @param object $category Category Object
  */
 function wxr_category_description( $category ) {
-	if ( empty( $category->description ) )
+	if ( empty( $category->description ) ) {
 		return;
+	}
 
 	echo '<wp:category_description>' . wxr_cdata( $category->description ) . '</wp:category_description>';
 }
@@ -82,8 +93,9 @@ function wxr_category_description( $category ) {
  * @param object $tag Tag Object
  */
 function wxr_tag_name( $tag ) {
-	if ( empty( $tag->name ) )
+	if ( empty( $tag->name ) ) {
 		return;
+	}
 
 	echo '<wp:tag_name>' . wxr_cdata( $tag->name ) . '</wp:tag_name>';
 }
@@ -96,8 +108,9 @@ function wxr_tag_name( $tag ) {
  * @param object $tag Tag Object
  */
 function wxr_tag_description( $tag ) {
-	if ( empty( $tag->description ) )
+	if ( empty( $tag->description ) ) {
 		return;
+	}
 
 	echo '<wp:tag_description>' . wxr_cdata( $tag->description ) . '</wp:tag_description>';
 }
@@ -110,8 +123,9 @@ function wxr_tag_description( $tag ) {
  * @param object $term Term Object
  */
 function wxr_term_name( $term ) {
-	if ( empty( $term->name ) )
+	if ( empty( $term->name ) ) {
 		return;
+	}
 
 	echo '<wp:term_name>' . wxr_cdata( $term->name ) . '</wp:term_name>';
 }
@@ -124,8 +138,9 @@ function wxr_term_name( $term ) {
  * @param object $term Term Object
  */
 function wxr_term_description( $term ) {
-	if ( empty( $term->description ) )
+	if ( empty( $term->description ) ) {
 		return;
+	}
 
 	echo '<wp:term_description>' . wxr_cdata( $term->description ) . '</wp:term_description>';
 }
@@ -137,25 +152,26 @@ function wxr_term_description( $term ) {
  *
  * @param array $post_ids Array of post IDs to filter the query by. Optional.
  */
-function wxr_authors_list( array $post_ids = null ) {
+function wxr_authors_list( ?array $post_ids = null ) {
 	global $wpdb;
 
-	if ( !empty( $post_ids ) ) {
+	if ( ! empty( $post_ids ) ) {
 		$post_ids = array_map( 'absint', $post_ids );
-		$and = 'AND ID IN ( ' . implode( ', ', $post_ids ) . ')';
+		$and      = 'AND ID IN ( ' . implode( ', ', $post_ids ) . ')';
 	} else {
 		$and = '';
 	}
 
 	$authors = array();
 	$results = $wpdb->get_results( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE post_status != 'auto-draft' $and" );
-	foreach ( (array) $results as $result )
+	foreach ( (array) $results as $result ) {
 		$authors[] = get_userdata( $result->post_author );
+	}
 
 	$authors = array_filter( $authors );
 
 	foreach ( $authors as $author ) {
-		echo "<wp:author>";
+		echo '<wp:author>';
 		echo '<wp:author_id>' . $author->ID . '</wp:author_id>';
 		echo '<wp:author_login>' . $author->user_login . '</wp:author_login>';
 		echo '<wp:author_email>' . $author->user_email . '</wp:author_email>';
@@ -173,8 +189,9 @@ function wxr_authors_list( array $post_ids = null ) {
  */
 function wxr_nav_menu_terms() {
 	$nav_menus = wp_get_nav_menus();
-	if ( empty( $nav_menus ) || ! is_array( $nav_menus ) )
+	if ( empty( $nav_menus ) || ! is_array( $nav_menus ) ) {
 		return;
+	}
 
 	foreach ( $nav_menus as $menu ) {
 		echo "\t<wp:term><wp:term_id>{$menu->term_id}</wp:term_id><wp:term_taxonomy>nav_menu</wp:term_taxonomy><wp:term_slug>{$menu->slug}</wp:term_slug>";
@@ -192,8 +209,9 @@ function wxr_post_taxonomy() {
 	$post = get_post();
 
 	$taxonomies = get_object_taxonomies( $post->post_type );
-	if ( empty( $taxonomies ) )
+	if ( empty( $taxonomies ) ) {
 		return;
+	}
 	$terms = wp_get_object_terms( $post->ID, $taxonomies );
 
 	foreach ( (array) $terms as $term ) {
@@ -202,28 +220,29 @@ function wxr_post_taxonomy() {
 }
 
 function wxr_filter_postmeta( $return_me, $meta_key ) {
-	if ( '_edit_lock' == $meta_key )
+	if ( '_edit_lock' == $meta_key ) {
 		$return_me = true;
+	}
 	return $return_me;
 }
 
 
 
-function lpie_export_attachment( $post ){
+function lpie_export_attachment( $post ) {
 	if ( has_post_thumbnail( $post->ID ) ) :
 		$attachment_id = get_post_thumbnail_id( $post->ID );
-		$attachment = wp_get_attachment_image_src( $attachment_id, 'full' );
-		$url = $attachment[0];
-		if( $data = @file_get_contents( $url ) ){
-			$data = base64_encode($data);
-		}else{
+		$attachment    = wp_get_attachment_image_src( $attachment_id, 'full' );
+		$url           = $attachment[0];
+		if ( $data = @file_get_contents( $url ) ) {
+			$data = base64_encode( $data );
+		} else {
 			$data = $url;
 		}
-		$parts = explode('.', basename($url));
+		$parts = explode( '.', basename( $url ) );
 		array_pop( $parts );
-		$filename = join('.', $parts );
+		$filename = join( '.', $parts );
 		?>
-        <wp:attachment id="<?php echo $attachment_id;?>" mime_type="<?php echo get_post_mime_type($attachment_id);?>" filename="<?php echo $filename;?>"><?php echo wxr_cdata( $data ); ?></wp:attachment>
-	<?php
+		<wp:attachment id="<?php echo $attachment_id; ?>" mime_type="<?php echo get_post_mime_type( $attachment_id ); ?>" filename="<?php echo $filename; ?>"><?php echo wxr_cdata( $data ); ?></wp:attachment>
+		<?php
 	endif;
 }

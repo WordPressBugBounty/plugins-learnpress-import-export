@@ -13,21 +13,22 @@ class LPR_Export_Import_Parser {
 	function parse( $file ) {
 		// Attempt to use proper XML parsers first
 		if ( extension_loaded( 'simplexml' ) ) {
-			$parser = new LPR_Export_Import_Parser_SimpleXML;
+			$parser = new LPR_Export_Import_Parser_SimpleXML();
 			$result = $parser->parse( $file );
 
 			// If SimpleXML succeeds or this is an invalid WXR file then return the results
-			if ( !is_wp_error( $result ) || 'SimpleXML_parse_error' != $result->get_error_code() )
+			if ( ! is_wp_error( $result ) || 'SimpleXML_parse_error' != $result->get_error_code() ) {
 				return $result;
-		} else if ( extension_loaded( 'xml' ) ) {
-			$parser = new LPR_Export_Import_Parser_XML;
+			}
+		} elseif ( extension_loaded( 'xml' ) ) {
+			$parser = new LPR_Export_Import_Parser_XML();
 			$result = $parser->parse( $file );
 
 			// If XMLParser succeeds or this is an invalid WXR file then return the results
-			if ( !is_wp_error( $result ) || 'XML_parse_error' != $result->get_error_code() )
+			if ( ! is_wp_error( $result ) || 'XML_parse_error' != $result->get_error_code() ) {
 				return $result;
+			}
 		}
-
 
 		// We have a malformed XML file, so display the error and fallthrough to regex
 		if ( isset( $result ) && defined( 'IMPORT_DEBUG' ) && IMPORT_DEBUG ) {
@@ -36,7 +37,7 @@ class LPR_Export_Import_Parser {
 				foreach ( $result->get_error_data() as $error ) {
 					echo $error->line . ':' . $error->column . ' ' . esc_html( $error->message ) . "\n";
 				}
-			} else if ( 'XML_parse_error' == $result->get_error_code() ) {
+			} elseif ( 'XML_parse_error' == $result->get_error_code() ) {
 				$error = $result->get_error_data();
 				echo $error[0] . ':' . $error[1] . ' ' . esc_html( $error[2] );
 			}
@@ -46,7 +47,7 @@ class LPR_Export_Import_Parser {
 		}
 
 		// use regular expressions if nothing else available or this is bad XML
-		$parser = new LPR_Export_Import_Parser_Regex;
+		$parser = new LPR_Export_Import_Parser_Regex();
 		return $parser->parse( $file );
 	}
 }
@@ -60,10 +61,10 @@ class LPR_Export_Import_Parser_SimpleXML {
 
 		$internal_errors = libxml_use_internal_errors( true );
 
-		$dom       = new DOMDocument;
+		$dom     = new DOMDocument();
 		$success = $dom->loadXML( file_get_contents( $file ) );
 
-		if ( !$success || isset( $dom->doctype ) ) {
+		if ( ! $success || isset( $dom->doctype ) ) {
 			return new WP_Error( 'SimpleXML_parse_error', __( 'There was an error when reading this WXR file', 'wordpress-importer' ), libxml_get_errors() );
 		}
 
@@ -71,38 +72,41 @@ class LPR_Export_Import_Parser_SimpleXML {
 		unset( $dom );
 
 		// halt if loading produces an error
-		if ( !$xml )
+		if ( ! $xml ) {
 			return new WP_Error( 'SimpleXML_parse_error', __( 'There was an error when reading this WXR file', 'wordpress-importer' ), libxml_get_errors() );
+		}
 
 		$wxr_version = $xml->xpath( '/rss/channel/wp:wxr_version' );
-//		if ( !$wxr_version )
-//			return new WP_Error( 'WXR_parse_error', __( 'This does not appear to be a WXR file, missing/invalid WXR version number', 'wordpress-importer' ) );
+		//      if ( !$wxr_version )
+		//          return new WP_Error( 'WXR_parse_error', __( 'This does not appear to be a WXR file, missing/invalid WXR version number', 'wordpress-importer' ) );
 
 		$wxr_version = (string) trim( $wxr_version[0] );
 		// confirm that we are dealing with the correct file format
-//		if ( !preg_match( '/^\d+\.\d+$/', $wxr_version ) )
-//			return new WP_Error( 'WXR_parse_error', __( 'This does not appear to be a WXR file, missing/invalid WXR version number', 'wordpress-importer' ) );
+		//      if ( !preg_match( '/^\d+\.\d+$/', $wxr_version ) )
+		//          return new WP_Error( 'WXR_parse_error', __( 'This does not appear to be a WXR file, missing/invalid WXR version number', 'wordpress-importer' ) );
 
 		$base_url = $xml->xpath( '/rss/channel/wp:base_site_url' );
 		$base_url = (string) trim( $base_url[0] );
 
 		$namespaces = $xml->getDocNamespaces();
-		if ( !isset( $namespaces['wp'] ) )
+		if ( ! isset( $namespaces['wp'] ) ) {
 			$namespaces['wp'] = 'http://wordpress.org/export/1.1/';
-		if ( !isset( $namespaces['excerpt'] ) )
+		}
+		if ( ! isset( $namespaces['excerpt'] ) ) {
 			$namespaces['excerpt'] = 'http://wordpress.org/export/1.1/excerpt/';
+		}
 
 		// grab authors
 		foreach ( $xml->xpath( '/rss/channel/wp:author' ) as $author_arr ) {
-			$a               = $author_arr->children( $namespaces['wp'] );
-			$login           = (string) $a->author_login;
-			$authors[$login] = array(
+			$a                 = $author_arr->children( $namespaces['wp'] );
+			$login             = (string) $a->author_login;
+			$authors[ $login ] = array(
 				'author_id'           => (int) $a->author_id,
 				'author_login'        => $login,
 				'author_email'        => (string) $a->author_email,
 				'author_display_name' => (string) $a->author_display_name,
 				'author_first_name'   => (string) $a->author_first_name,
-				'author_last_name'    => (string) $a->author_last_name
+				'author_last_name'    => (string) $a->author_last_name,
 			);
 		}
 
@@ -114,7 +118,7 @@ class LPR_Export_Import_Parser_SimpleXML {
 				'category_nicename'    => (string) $t->category_nicename,
 				'category_parent'      => (string) $t->category_parent,
 				'cat_name'             => (string) $t->cat_name,
-				'category_description' => (string) $t->category_description
+				'category_description' => (string) $t->category_description,
 			);
 		}
 
@@ -124,7 +128,7 @@ class LPR_Export_Import_Parser_SimpleXML {
 				'term_id'         => (int) $t->term_id,
 				'tag_slug'        => (string) $t->tag_slug,
 				'tag_name'        => (string) $t->tag_name,
-				'tag_description' => (string) $t->tag_description
+				'tag_description' => (string) $t->tag_description,
 			);
 		}
 
@@ -136,7 +140,7 @@ class LPR_Export_Import_Parser_SimpleXML {
 				'slug'             => (string) $t->term_slug,
 				'term_parent'      => (string) $t->term_parent,
 				'term_name'        => (string) $t->term_name,
-				'term_description' => (string) $t->term_description
+				'term_description' => (string) $t->term_description,
 			);
 		}
 
@@ -180,7 +184,7 @@ class LPR_Export_Import_Parser_SimpleXML {
 							'section_name'        => (string) $_section->section_name,
 							'section_description' => (string) $_section->section_description,
 							'section_order'       => (int) $_section->section_order,
-							'items'               => array()
+							'items'               => array(),
 						);
 
 						if ( isset( $_section->section_item ) ) {
@@ -206,7 +210,7 @@ class LPR_Export_Import_Parser_SimpleXML {
 						$_question = array(
 							'quiz_id'        => (int) $question->quiz_id,
 							'question_id'    => (int) $question->question_id,
-							'question_order' => (int) $question->question_order
+							'question_order' => (int) $question->question_order,
 						);
 
 						$post['questions'][] = $_question;
@@ -220,13 +224,13 @@ class LPR_Export_Import_Parser_SimpleXML {
 
 				if ( $wp->answer ) {
 					foreach ( $wp->answer as $answer ) {
-						
+
 						$_answer = array(
 							'question_id'  => (int) $answer->question_id,
 							'title'  => (string) $answer->answer_title,
-							'value'  =>(string) $answer->answer_value,
+							'value'  => (string) $answer->answer_value,
 							'order'  => (int) $answer->answer_order,
-							'is_true'  =>(string) $answer->answer_is_true, 
+							'is_true'  => (string) $answer->answer_is_true,
 						);
 
 						$post['answers'][] = $_answer;
@@ -254,12 +258,12 @@ class LPR_Export_Import_Parser_SimpleXML {
 					'id'        => (int) $att['id'],
 					'mime_type' => (string) $att['mime_type'],
 					'filename'  => (string) $att['filename'],
-					'data'      => (string) $wp->attachment
+					'data'      => (string) $wp->attachment,
 				);
 			}
 			foreach ( $item->category as $c ) {
 				$att = $c->attributes();
-				if ( isset( $att['nicename'] ) )
+				if ( isset( $att['nicename'] ) ) {
 					$post['terms'][] = array(
 						'name'        => (string) $c,
 						'slug'        => (string) $att['nicename'],
@@ -268,15 +272,15 @@ class LPR_Export_Import_Parser_SimpleXML {
 						'parent'      => (int) $att['parent'],
 						'description' => (string) $att['description'],
 					);
+				}
 			}
 
 			foreach ( $wp->postmeta as $meta ) {
 				$post['postmeta'][] = array(
 					'key'   => (string) $meta->meta_key,
-					'value' => (string) $meta->meta_value
+					'value' => (string) $meta->meta_value,
 				);
 			}
-
 
 			foreach ( $wp->comment as $comment ) {
 				$meta = array();
@@ -284,7 +288,7 @@ class LPR_Export_Import_Parser_SimpleXML {
 					foreach ( $comment->commentmeta as $m ) {
 						$meta[] = array(
 							'key'   => (string) $m->meta_key,
-							'value' => (string) $m->meta_value
+							'value' => (string) $m->meta_value,
 						);
 					}
 				}
@@ -324,9 +328,9 @@ class LPR_Export_Import_Parser_SimpleXML {
 			'terms'          => $terms,
 			'base_url'       => $base_url,
 			'version'        => $wxr_version,
-			'plugin_name'    => !$plugin_name ? 'learnpress-import-export' : $plugin_name,
-			'plugin_version' => !$plugin_version ? '0.9' : $plugin_version,
-			'parser'         => 'LPR_Export_Import_Parser_SimpleXML'
+			'plugin_name'    => ! $plugin_name ? 'learnpress-import-export' : $plugin_name,
+			'plugin_version' => ! $plugin_version ? '0.9' : $plugin_version,
+			'parser'         => 'LPR_Export_Import_Parser_SimpleXML',
 		);
 	}
 }
@@ -335,21 +339,56 @@ class LPR_Export_Import_Parser_SimpleXML {
  * WXR Parser that makes use of the XML Parser PHP extension.
  */
 class LPR_Export_Import_Parser_XML {
-	var $wp_tags = array(
-		'wp:post_id', 'wp:post_date', 'wp:post_date_gmt', 'wp:comment_status', 'wp:ping_status', 'wp:attachment',
-		'wp:status', 'wp:post_name', 'wp:post_parent', 'wp:menu_order', 'wp:post_type', 'wp:post_password',
-		'wp:is_sticky', 'wp:term_id', 'wp:category_nicename', 'wp:category_parent', 'wp:cat_name', 'wp:category_description',
-		'wp:tag_slug', 'wp:tag_name', 'wp:tag_description', 'wp:term_taxonomy', 'wp:term_parent',
-		'wp:term_name', 'wp:term_description', 'wp:author_id', 'wp:author_login', 'wp:author_email', 'wp:author_display_name',
-		'wp:author_first_name', 'wp:author_last_name', 'post_author_id'
+	var $wp_tags     = array(
+		'wp:post_id',
+		'wp:post_date',
+		'wp:post_date_gmt',
+		'wp:comment_status',
+		'wp:ping_status',
+		'wp:attachment',
+		'wp:status',
+		'wp:post_name',
+		'wp:post_parent',
+		'wp:menu_order',
+		'wp:post_type',
+		'wp:post_password',
+		'wp:is_sticky',
+		'wp:term_id',
+		'wp:category_nicename',
+		'wp:category_parent',
+		'wp:cat_name',
+		'wp:category_description',
+		'wp:tag_slug',
+		'wp:tag_name',
+		'wp:tag_description',
+		'wp:term_taxonomy',
+		'wp:term_parent',
+		'wp:term_name',
+		'wp:term_description',
+		'wp:author_id',
+		'wp:author_login',
+		'wp:author_email',
+		'wp:author_display_name',
+		'wp:author_first_name',
+		'wp:author_last_name',
+		'post_author_id',
 	);
 	var $wp_sub_tags = array(
-		'wp:comment_id', 'wp:comment_author', 'wp:comment_author_email', 'wp:comment_author_url',
-		'wp:comment_author_IP', 'wp:comment_date', 'wp:comment_date_gmt', 'wp:comment_content',
-		'wp:comment_approved', 'wp:comment_type', 'wp:comment_parent', 'wp:comment_user_id',
+		'wp:comment_id',
+		'wp:comment_author',
+		'wp:comment_author_email',
+		'wp:comment_author_url',
+		'wp:comment_author_IP',
+		'wp:comment_date',
+		'wp:comment_date_gmt',
+		'wp:comment_content',
+		'wp:comment_approved',
+		'wp:comment_type',
+		'wp:comment_parent',
+		'wp:comment_user_id',
 	);
 
-	var $plugin_name = 'learnperss';
+	var $plugin_name    = 'learnperss';
 	var $plugin_version = '0.9';
 
 	function parse( $file ) {
@@ -363,7 +402,7 @@ class LPR_Export_Import_Parser_XML {
 		xml_set_character_data_handler( $xml, 'cdata' );
 		xml_set_element_handler( $xml, 'tag_open', 'tag_close' );
 
-		if ( !xml_parse( $xml, file_get_contents( $file ), true ) ) {
+		if ( ! xml_parse( $xml, file_get_contents( $file ), true ) ) {
 			$current_line   = xml_get_current_line_number( $xml );
 			$current_column = xml_get_current_column_number( $xml );
 			$error_code     = xml_get_error_code( $xml );
@@ -371,9 +410,9 @@ class LPR_Export_Import_Parser_XML {
 			return new WP_Error( 'XML_parse_error', 'There was an error when reading this WXR file', array( $current_line, $current_column, $error_string ) );
 		}
 		xml_parser_free( $xml );
-//
-//		if ( !preg_match( '/^\d+\.\d+$/', $this->wxr_version ) )
-//			return new WP_Error( 'WXR_parse_error', __( 'This does not appear to be a WXR file, missing/invalid WXR version number', 'wordpress-importer' ) );
+		//
+		//      if ( !preg_match( '/^\d+\.\d+$/', $this->wxr_version ) )
+		//          return new WP_Error( 'WXR_parse_error', __( 'This does not appear to be a WXR file, missing/invalid WXR version number', 'wordpress-importer' ) );
 
 		return array(
 			'authors'        => $this->authors,
@@ -385,7 +424,7 @@ class LPR_Export_Import_Parser_XML {
 			'version'        => $this->wxr_version,
 			'plugin_name'    => $this->plugin_name,
 			'plugin_version' => $this->plugin_version,
-			'parser'         => 'LPR_Export_Import_Parser_XML'
+			'parser'         => 'LPR_Export_Import_Parser_XML',
 		);
 	}
 
@@ -440,8 +479,9 @@ class LPR_Export_Import_Parser_XML {
 	}
 
 	function cdata( $parser, $cdata ) {
-		if ( !trim( $cdata ) )
+		if ( ! trim( $cdata ) ) {
 			return;
+		}
 
 		$this->cdata .= trim( $cdata );
 	}
@@ -450,26 +490,28 @@ class LPR_Export_Import_Parser_XML {
 		switch ( $tag ) {
 			case 'wp:comment':
 				unset( $this->sub_data['key'], $this->sub_data['value'] ); // remove meta sub_data
-				if ( !empty( $this->sub_data ) )
+				if ( ! empty( $this->sub_data ) ) {
 					$this->data['comments'][] = $this->sub_data;
+				}
 				$this->sub_data = false;
 				break;
 			case 'wp:commentmeta':
 				$this->sub_data['commentmeta'][] = array(
 					'key'   => $this->sub_data['key'],
-					'value' => $this->sub_data['value']
+					'value' => $this->sub_data['value'],
 				);
 				break;
 			case 'category':
-				if ( !empty( $this->sub_data ) ) {
+				if ( ! empty( $this->sub_data ) ) {
 					$this->sub_data['name'] = $this->cdata;
 					$this->data['terms'][]  = $this->sub_data;
 				}
 				$this->sub_data = false;
 				break;
 			case 'wp:postmeta':
-				if ( !empty( $this->sub_data ) )
+				if ( ! empty( $this->sub_data ) ) {
 					$this->data['postmeta'][] = $this->sub_data;
+				}
 				$this->sub_data = false;
 				break;
 			case 'item':
@@ -484,8 +526,9 @@ class LPR_Export_Import_Parser_XML {
 				$this->data = false;
 				break;
 			case 'wp:author':
-				if ( !empty( $this->data['author_login'] ) )
-					$this->authors[$this->data['author_login']] = $this->data;
+				if ( ! empty( $this->data['author_login'] ) ) {
+					$this->authors[ $this->data['author_login'] ] = $this->data;
+				}
 				$this->data = false;
 				break;
 			case 'wp:base_site_url':
@@ -502,11 +545,11 @@ class LPR_Export_Import_Parser_XML {
 				break;
 			default:
 				if ( $this->in_sub_tag ) {
-					$this->sub_data[$this->in_sub_tag] = !empty( $this->cdata ) ? $this->cdata : '';
-					$this->in_sub_tag                  = false;
-				} else if ( $this->in_tag ) {
-					$this->data[$this->in_tag] = !empty( $this->cdata ) ? $this->cdata : '';
-					$this->in_tag              = false;
+					$this->sub_data[ $this->in_sub_tag ] = ! empty( $this->cdata ) ? $this->cdata : '';
+					$this->in_sub_tag                    = false;
+				} elseif ( $this->in_tag ) {
+					$this->data[ $this->in_tag ] = ! empty( $this->cdata ) ? $this->cdata : '';
+					$this->in_tag                = false;
 				}
 		}
 
@@ -518,13 +561,13 @@ class LPR_Export_Import_Parser_XML {
  * WXR Parser that uses regular expressions. Fallback for installs without an XML parser.
  */
 class LPR_Export_Import_Parser_Regex {
-	var $authors = array();
-	var $posts = array();
-	var $categories = array();
-	var $tags = array();
-	var $terms = array();
-	var $base_url = '';
-	var $plugin_name = 'learnperss';
+	var $authors        = array();
+	var $posts          = array();
+	var $categories     = array();
+	var $tags           = array();
+	var $terms          = array();
+	var $base_url       = '';
+	var $plugin_name    = 'learnperss';
 	var $plugin_version = LEARNPRESS_VERSION;
 
 	function WXR_Parser_Regex() {
@@ -540,11 +583,12 @@ class LPR_Export_Import_Parser_Regex {
 
 		$fp = $this->fopen( $file, 'r' );
 		if ( $fp ) {
-			while ( !$this->feof( $fp ) ) {
+			while ( ! $this->feof( $fp ) ) {
 				$importline = rtrim( $this->fgets( $fp ) );
 
-				if ( !$wxr_version && preg_match( '|<wp:wxr_version>(\d+\.\d+)</wp:wxr_version>|', $importline, $version ) )
+				if ( ! $wxr_version && preg_match( '|<wp:wxr_version>(\d+\.\d+)</wp:wxr_version>|', $importline, $version ) ) {
 					$wxr_version = $version[1];
+				}
 
 				if ( false !== strpos( $importline, '<wp:base_site_url>' ) ) {
 					preg_match( '|<wp:base_site_url>(.*?)</wp:base_site_url>|is', $importline, $url );
@@ -578,8 +622,8 @@ class LPR_Export_Import_Parser_Regex {
 				}
 				if ( false !== strpos( $importline, '<wp:author>' ) ) {
 					preg_match( '|<wp:author>(.*?)</wp:author>|is', $importline, $author );
-					$a                                 = $this->process_author( $author[1] );
-					$this->authors[$a['author_login']] = $a;
+					$a                                   = $this->process_author( $author[1] );
+					$this->authors[ $a['author_login'] ] = $a;
 					continue;
 				}
 				if ( false !== strpos( $importline, '<item>' ) ) {
@@ -600,8 +644,8 @@ class LPR_Export_Import_Parser_Regex {
 			$this->fclose( $fp );
 		}
 
-//		if ( !$wxr_version )
-//			return new WP_Error( 'WXR_parse_error', __( 'This does not appear to be a WXR file, missing/invalid WXR version number', 'wordpress-importer' ) );
+		//      if ( !$wxr_version )
+		//          return new WP_Error( 'WXR_parse_error', __( 'This does not appear to be a WXR file, missing/invalid WXR version number', 'wordpress-importer' ) );
 
 		return array(
 			'authors'        => $this->authors,
@@ -613,7 +657,7 @@ class LPR_Export_Import_Parser_Regex {
 			'version'        => $wxr_version,
 			'plugin_name'    => $this->plugin_name,
 			'plugin_version' => $this->plugin_version,
-			'parser'         => 'LPR_Export_Import_Parser_Regex'
+			'parser'         => 'LPR_Export_Import_Parser_Regex',
 		);
 	}
 
@@ -708,9 +752,25 @@ class LPR_Export_Import_Parser_Regex {
 		$post_content = str_replace( '<br>', '<br />', $post_content );
 		$post_content = str_replace( '<hr>', '<hr />', $post_content );
 
-		$postdata = compact( 'post_id', 'post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_excerpt',
-			'post_title', 'status', 'post_name', 'comment_status', 'ping_status', 'guid', 'post_parent',
-			'menu_order', 'post_type', 'post_password', 'is_sticky', 'post_author_id'
+		$postdata = compact(
+			'post_id',
+			'post_author',
+			'post_date',
+			'post_date_gmt',
+			'post_content',
+			'post_excerpt',
+			'post_title',
+			'status',
+			'post_name',
+			'comment_status',
+			'ping_status',
+			'guid',
+			'post_parent',
+			'menu_order',
+			'post_type',
+			'post_password',
+			'is_sticky',
+			'post_author_id'
 		);
 
 		$attachment = $this->get_tag( $post, 'wp:attachment' );
@@ -721,11 +781,10 @@ class LPR_Export_Import_Parser_Regex {
 					'id'        => $attachments[0][1],
 					'mime_type' => $attachments[0][2],
 					'filename'  => $attachments[0][3],
-					'data'      => $attachment
+					'data'      => $attachment,
 				);
 			}
 		}
-
 
 		preg_match_all( '|<category domain="([^"]+?)" nicename="([^"]+?)" id="([^"]+?)" parent="([^"]+?)" description="([^"]+?)">(.+?)</category>|is', $post, $terms, PREG_SET_ORDER );
 		foreach ( $terms as $t ) {
@@ -738,7 +797,9 @@ class LPR_Export_Import_Parser_Regex {
 				'name'        => str_replace( array( '<![CDATA[', ']]>' ), '', $t[6] ),
 			);
 		}
-		if ( !empty( $post_terms ) ) $postdata['terms'] = $post_terms;
+		if ( ! empty( $post_terms ) ) {
+			$postdata['terms'] = $post_terms;
+		}
 
 		if ( $post_type == 'lp_course' ) {
 			//
@@ -752,7 +813,7 @@ class LPR_Export_Import_Parser_Regex {
 						'section_description' => $this->get_tag( $section, 'wp:section_description' ),
 						'section_order'       => $this->get_tag( $section, 'wp:section_order' ),
 						'section_course_id'   => $this->get_tag( $section, 'wp:section_course_id' ),
-						'items'               => array()
+						'items'               => array(),
 					);
 
 					preg_match_all( '|<wp:section_item>(.+?)</wp:section_item>|is', $section, $section_items );
@@ -762,7 +823,7 @@ class LPR_Export_Import_Parser_Regex {
 							$_section['items'][] = array(
 								'item_id'    => $this->get_tag( $item, 'wp:item_id' ),
 								'item_type'  => $this->get_tag( $item, 'wp:item_type' ),
-								'item_order' => $this->get_tag( $item, 'wp:item_order' )
+								'item_order' => $this->get_tag( $item, 'wp:item_order' ),
 							);
 						}
 					}
@@ -784,7 +845,7 @@ class LPR_Export_Import_Parser_Regex {
 						'quiz_id'        => $this->get_tag( $question, 'wp:quiz_id' ),
 						'question_id'    => $this->get_tag( $question, 'wp:question_id' ),
 						'params'         => $this->get_tag( $question, 'wp:params' ),
-						'question_order' => $this->get_tag( $question, 'wp:question_order' )
+						'question_order' => $this->get_tag( $question, 'wp:question_order' ),
 					);
 
 					$postdata['questions'][] = $_question;
@@ -828,7 +889,7 @@ class LPR_Export_Import_Parser_Regex {
 				}
 			}
 		}
-		
+
 		preg_match_all( '|<wp:comment>(.+?)</wp:comment>|is', $post, $comments );
 		$comments = $comments[1];
 		if ( $comments ) {
@@ -860,7 +921,9 @@ class LPR_Export_Import_Parser_Regex {
 				);
 			}
 		}
-		if ( !empty( $post_comments ) ) $postdata['comments'] = $post_comments;
+		if ( ! empty( $post_comments ) ) {
+			$postdata['comments'] = $post_comments;
+		}
 
 		preg_match_all( '|<wp:postmeta>(.+?)</wp:postmeta>|is', $post, $postmeta );
 		$postmeta = $postmeta[1];
@@ -872,7 +935,9 @@ class LPR_Export_Import_Parser_Regex {
 				);
 			}
 		}
-		if ( !empty( $post_postmeta ) ) $postdata['postmeta'] = $post_postmeta;
+		if ( ! empty( $post_postmeta ) ) {
+			$postdata['postmeta'] = $post_postmeta;
+		}
 
 		$postdata['parser'] = __CLASS__;
 
@@ -884,26 +949,30 @@ class LPR_Export_Import_Parser_Regex {
 	}
 
 	function fopen( $filename, $mode = 'r' ) {
-		if ( $this->has_gzip )
+		if ( $this->has_gzip ) {
 			return gzopen( $filename, $mode );
+		}
 		return fopen( $filename, $mode );
 	}
 
 	function feof( $fp ) {
-		if ( $this->has_gzip )
+		if ( $this->has_gzip ) {
 			return gzeof( $fp );
+		}
 		return feof( $fp );
 	}
 
 	function fgets( $fp, $len = 8192 ) {
-		if ( $this->has_gzip )
+		if ( $this->has_gzip ) {
 			return gzgets( $fp, $len );
+		}
 		return fgets( $fp, $len );
 	}
 
 	function fclose( $fp ) {
-		if ( $this->has_gzip )
+		if ( $this->has_gzip ) {
 			return gzclose( $fp );
+		}
 		return fclose( $fp );
 	}
 }

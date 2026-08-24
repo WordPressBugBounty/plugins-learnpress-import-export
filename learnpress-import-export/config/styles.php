@@ -21,7 +21,7 @@ return apply_filters(
 					'css',
 					'learnpress-import-export-global'
 				),
-			)
+			),
 		),
 	)
 );

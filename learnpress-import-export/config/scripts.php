@@ -33,15 +33,15 @@ return apply_filters(
 					'screens'   => array(
 						LP_ADDON_IMPORT_EXPORT_MIGRATION_PAGE,
 					),
-				)
-			)
+				),
+			),
 		),
 		'frontend' => array(
 			'register' => array(
 				'learnpress-import-export-global'           => array(
 					'src'  => $source_asset->get_asset_frontend_file_url( 'js', 'learnpress-import-export-global' ),
 					'deps' => array( 'wp-api-fetch' ),
-				)
+				),
 			),
 		),
 	),

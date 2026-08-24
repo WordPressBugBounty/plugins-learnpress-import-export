@@ -28,10 +28,10 @@ class Page {
 			return false;
 		}
 
-//		$tab = Validation::sanitize_params_submitted( $_GET['tab'] ?? '' );
-//		if ( ! empty( $tab ) && 'tutor_migration' !== $tab ) {
-//			return false;
-//		}
+		//      $tab = Validation::sanitize_params_submitted( $_GET['tab'] ?? '' );
+		//      if ( ! empty( $tab ) && 'tutor_migration' !== $tab ) {
+		//          return false;
+		//      }
 
 		return true;
 	}
@@ -42,7 +42,7 @@ class Page {
 	public static function get_current_plugin_by_page_url() {
 		$plugins = Config::instance()->get( 'migration-plugin' );
 
-		$page    = Validation::sanitize_params_submitted( $_GET['page'] ?? '' );
+		$page = Validation::sanitize_params_submitted( $_GET['page'] ?? '' );
 		if ( ! empty( $page ) && 'lp-migration-tool' !== $page ) {
 			return array();
 		}
@@ -50,11 +50,10 @@ class Page {
 		$tab = Validation::sanitize_params_submitted( $_GET['tab'] ?? '' );
 		if ( empty( $tab ) ) {
 			if ( count( $plugins ) ) {
-				return array_values($plugins)[0] ?? array();
+				return array_values( $plugins )[0] ?? array();
 			} else {
 				return array();
 			}
-
 		}
 
 		return $plugins[ $tab ] ?? array();

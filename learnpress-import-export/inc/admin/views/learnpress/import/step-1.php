@@ -8,20 +8,23 @@ defined( 'ABSPATH' ) || exit;
 ?>
 
 <ul class="form-options">
-    <li>
-        <label><?php _e( 'Save imported file', 'learnpress-import-export' ); ?></label>
-        <input type="hidden" name="save_import" value="0"/>
-        <input type="checkbox" name="save_import" value="1"/>
-        <p class="description">
+	<li>
+		<label><?php _e( 'Save imported file', 'learnpress-import-export' ); ?></label>
+		<input type="hidden" name="save_import" value="0"/>
+		<input type="checkbox" name="save_import" value="1"/>
+		<p class="description">
 			<?php _e( 'Save imported file on your server so you can download/import it later', 'learnpress-import-export' ); ?>
-        </p>
-    </li>
+		</p>
+	</li>
 </ul>
 <?php
-$file = lp_import_handle_upload( $_FILES['lpie_import_file'], array(
-	'mimes'     => array( 'xml' => 'text/xml' ),
-	'test_type' => false
-) );
+$file = lp_import_handle_upload(
+	$_FILES['lpie_import_file'],
+	array(
+		'mimes'     => array( 'xml' => 'text/xml' ),
+		'test_type' => false,
+	)
+);
 if ( ! empty( $file['file'] ) && file_exists( $file['file'] ) ) {
 	$_REQUEST['file'] = $file['file'];
 }

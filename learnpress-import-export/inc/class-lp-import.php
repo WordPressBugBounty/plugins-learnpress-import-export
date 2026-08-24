@@ -57,7 +57,6 @@ if ( ! class_exists( 'LP_Import' ) ) {
 					update_post_meta( $post_id, '_lp_info_extra_fast_query', $data );
 				}
 			}
-
 		}
 	}
 }
