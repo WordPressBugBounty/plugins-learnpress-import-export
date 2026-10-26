@@ -4,7 +4,7 @@
  * Plugin URI: https://thimpress.com/product/learnpress-export-import/
  * Description: Export and Import your courses with all lesson and quiz in easiest way.
  * Author: ThimPress
- * Version: 4.1.6
+ * Version: 4.1.7
  * Author URI: http://thimpress.com
  * Tags: learnpress, lms, add-on, prerequisites courses
  * Text Domain: learnpress-import-export
@@ -41,6 +41,10 @@ class LP_Addon_Import_Export_Preload {
 	 * @var LP_Addon_Import_Export $addon
 	 */
 	public static $addon;
+	/**
+	 * @var string
+	 */
+	protected $require_error = '';
 
 	/**
 	 * Singleton.
@@ -60,7 +64,6 @@ class LP_Addon_Import_Export_Preload {
 	 * LP_Addon_Import_Export_Preload constructor.
 	 */
 	protected function __construct() {
-		$can_load = true;
 		// Set Base name plugin.
 		define( 'LP_ADDON_IMPORT_EXPORT_BASENAME', plugin_basename( LP_ADDON_IMPORT_EXPORT_FILE ) );
 
@@ -114,21 +117,8 @@ class LP_Addon_Import_Export_Preload {
 		define( 'LP_ADDON_IMPORT_EXPORT_MASTER_STUDY_QUESTION_CPT', 'stm-questions' );
 		define( 'LP_ADDON_IMPORT_EXPORT_MASTER_STUDY_ASSIGNMENT_CPT', 'stm-assignments' );
 
-		// Check LP activated .
-		if ( ! is_plugin_active( 'learnpress/learnpress.php' ) ) {
-			$can_load = false;
-		} elseif ( version_compare( LP_ADDON_IMPORT_EXPORT_REQUIRE_VER, get_option( 'learnpress_version', '3.0.0' ), '>' ) ) {
-			$can_load = false;
-		}
-
-		if ( ! $can_load ) {
-			add_action( 'admin_notices', array( $this, 'show_note_errors_require_lp' ) );
-			/*deactivate_plugins( LP_ADDON_IMPORT_EXPORT_BASENAME );
-
-			if ( isset( $_GET['activate'] ) ) {
-				unset( $_GET['activate'] );
-			}*/
-
+		// Check requirements
+		if ( ! $this->check_requirements() ) {
 			return;
 		}
 
@@ -136,6 +126,56 @@ class LP_Addon_Import_Export_Preload {
 
 		// Sure LP loaded.
 		add_action( 'learn-press/ready', array( $this, 'load' ) );
+	}
+
+	/**
+	 * Check plugin requirements
+	 *
+	 * @return bool
+	 */
+	protected function check_requirements(): bool {
+		try {
+			if ( ! is_plugin_active( 'learnpress/learnpress.php' )
+				|| version_compare(
+					get_option( 'learnpress_version', '3.0.0' ),
+					LP_ADDON_IMPORT_EXPORT_REQUIRE_VER,
+					'<'
+				) ) {
+				$this->require_error = 'require_lp';
+				throw new Exception();
+			}
+
+			return true;
+		} catch ( Throwable $e ) {
+			add_action( 'admin_notices', array( $this, 'show_note_errors' ) );
+			return false;
+		}
+	}
+
+	/**
+	 * Show admin notice for requirement errors
+	 *
+	 * @return void
+	 */
+	public function show_note_errors() {
+		$message = '';
+		switch ( $this->require_error ) {
+			case 'require_lp':
+				$message = sprintf(
+					esc_html__( 'Addon Import/Export require install LearnPress version %s or later', 'learnpress-import-export' ),
+					LP_ADDON_IMPORT_EXPORT_REQUIRE_VER
+				);
+				break;
+			default:
+				break;
+		}
+
+		if ( empty( $message ) ) {
+			return;
+		}
+
+		// Template class not exists when LearnPress is not active.
+		printf( '<div class="notice notice-error"><p>%s</p></div>', $message );
 	}
 
 	/**
@@ -168,23 +208,6 @@ class LP_Addon_Import_Export_Preload {
 			new MigrationPopupController();
 		}
 	}
-
-	public function show_note_errors_require_lp() {
-		?>
-		<div class="notice notice-error">
-			<p>
-				<?php
-				printf(
-					'Please active <strong>LearnPress version %1$s or later</strong> before active <strong>%2$s</strong>',
-					LP_ADDON_IMPORT_EXPORT_REQUIRE_VER,
-					self::$addon_info['Name']
-				);
-				?>
-			</p>
-		</div>
-		<?php
-	}
 }
 
 LP_Addon_Import_Export_Preload::instance();
-

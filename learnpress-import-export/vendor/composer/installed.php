@@ -3,7 +3,7 @@
         'name' => 'learnpress-import-export/learnpress-import-export',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '829efe67329948395f9c1e7d5ce3c7b9b587014f',
+        'reference' => 'af9569db0115a503d09ffb91f455d85cfcbbdfed',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'learnpress-import-export/learnpress-import-export' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '829efe67329948395f9c1e7d5ce3c7b9b587014f',
+            'reference' => 'af9569db0115a503d09ffb91f455d85cfcbbdfed',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

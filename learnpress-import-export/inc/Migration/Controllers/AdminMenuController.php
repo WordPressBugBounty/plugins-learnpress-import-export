@@ -2,16 +2,13 @@
 
 namespace LPImportExport\Migration\Controllers;
 
+use LearnPress\Models\UserModel;
 use LPImportExport\Migration\Helpers\Config;
 use LPImportExport\Migration\Helpers\General;
 use LPImportExport\Migration\Helpers\MasterStudy;
 use LPImportExport\Migration\Helpers\Page;
 use LPImportExport\Migration\Helpers\Template;
 use LPImportExport\Migration\Helpers\Tutor;
-use LPImportExport\Migration\Models\TutorCourseItemModel;
-use LPImportExport\Migration\Models\TutorCourseModel;
-use LPImportExport\Migration\Models\TutorSectionModel;
-use WPEMS\Models\UserModel;
 
 class AdminMenuController {
 	private $active_plugins;

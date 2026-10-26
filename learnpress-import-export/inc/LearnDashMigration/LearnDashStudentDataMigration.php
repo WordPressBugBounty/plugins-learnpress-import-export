@@ -900,7 +900,7 @@ class LearnDashStudentDataMigration {
 		if ( class_exists( 'LP_Course_Cache' ) ) {
 			$lp_course_cache = \LP_Course_Cache::instance();
 			$lp_course_cache->clean_total_students_enrolled_or_purchased( $lp_course_id );
-			$lp_course_cache->clean_total_students_enrolled( $lp_course_id );
+			//$lp_course_cache->clean_total_students_enrolled( $lp_course_id );
 		}
 
 		// Clear Thim_Cache_DB if available.
